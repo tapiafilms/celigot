@@ -1,0 +1,28 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="800" height="220" viewBox="0 0 800 220">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#1E3A35;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#3a7060;stop-opacity:1" />
+    </linearGradient>
+    <pattern id="dots" x="0" y="0" width="30" height="30" patternUnits="userSpaceOnUse">
+      <circle cx="15" cy="15" r="1.5" fill="rgba(255,255,255,0.08)"/>
+    </pattern>
+  </defs>
+  <rect width="800" height="220" rx="16" fill="url(#bg)"/>
+  <rect width="800" height="220" rx="16" fill="url(#dots)"/>
+  <rect x="0" y="0" width="8" height="220" rx="4" fill="rgba(255,255,255,0.25)"/>
+  <text x="60" y="130" font-size="64" font-family="serif" text-anchor="middle" opacity="0.6">🛒</text>
+  <rect x="120" y="38" width="230" height="30" rx="15" fill="rgba(255,255,255,0.18)"/>
+  <text x="235" y="58" font-size="13" font-family="'Plus Jakarta Sans', Arial, sans-serif"
+        font-weight="700" fill="white" text-anchor="middle" letter-spacing="1">✦ PROMOCIÓN DE LA SEMANA ✦</text>
+  <text x="120" y="108" font-size="26" font-family="'Funnel Display', Arial, sans-serif"
+        font-weight="800" fill="white">Celina Tienda Online</text>
+  <text x="120" y="140" font-size="16" font-family="Arial, sans-serif" fill="rgba(255,255,255,0.75)">
+    Reemplaza esta imagen con tu banner real
+  </text>
+  <text x="120" y="162" font-size="13" font-family="Arial, sans-serif" fill="rgba(255,255,255,0.50)">
+    📁 img/banner-celina-online.svg (o .jpg / .png)
+  </text>
+  <rect x="4" y="4" width="792" height="212" rx="14" fill="none"
+        stroke="rgba(255,255,255,0.3)" stroke-width="2" stroke-dasharray="10,6"/>
+</svg>

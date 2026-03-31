@@ -1,0 +1,49 @@
+{
+  "name": "CeliGO Viña — Tu guía alimentaria",
+  "short_name": "CeliGO",
+  "description": "Guía alimentaria para celíacos en Viña del Mar. Escáner de etiquetas, asistente IA, restaurantes y tiendas sin gluten.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "background_color": "#1C2419",
+  "theme_color": "#1C2419",
+  "lang": "es-CL",
+  "categories": ["food", "health", "lifestyle"],
+  "icons": [
+    {
+      "src": "img/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "img/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "img/apple-touch-icon.png",
+      "sizes": "180x180",
+      "type": "image/png"
+    }
+  ],
+  "screenshots": [],
+  "shortcuts": [
+    {
+      "name": "Escáner de etiquetas",
+      "short_name": "Escáner",
+      "description": "Analiza ingredientes con IA",
+      "url": "/?tab=scanner",
+      "icons": [{ "src": "img/icon-192.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "Restaurantes sin gluten",
+      "short_name": "Comer",
+      "description": "Restaurantes seguros en Viña del Mar",
+      "url": "/?tab=restaurantes",
+      "icons": [{ "src": "img/icon-192.png", "sizes": "192x192" }]
+    }
+  ]
+}

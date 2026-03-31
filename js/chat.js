@@ -1,0 +1,50 @@
+/* ══ ASISTENTE DE ALERGIAS ══ */
+
+async function sendChat() {
+  const inp = document.getElementById('chatInput');
+  const msg = inp.value.trim();
+  if (!msg) return;
+  inp.value = '';
+
+  addMsg(msg, 'user');
+  document.getElementById('btnSend').disabled = true;
+  const loading = addMsg('Escribiendo...', 'loading-msg');
+
+  /* Contexto completo del perfil */
+  const userContext = typeof getUserContext === 'function' ? getUserContext() : '';
+
+  const sys = `Eres un asistente especializado en alergias alimentarias y celiaquía. Responde en español de forma clara, breve y práctica.
+${userContext ? `PERFIL DEL USUARIO: ${userContext}` : ''}
+Usa el perfil del usuario para personalizar cada respuesta. Si es celíaco con sensibilidad alta, sé más estricto en tus advertencias. Menciona nombres ocultos de alérgenos cuando sea relevante. Sé empático y directo.`;
+
+  try {
+    const res  = await fetch(WORKER_URL, {
+      method:  "POST",
+      headers: { "Content-Type": "application/json" },
+      body:    JSON.stringify({
+        model:      "claude-sonnet-4-20250514",
+        max_tokens: 400,
+        system:     sys,
+        messages:   [{ role: "user", content: msg }]
+      })
+    });
+    const data = await res.json();
+    const text = data.content.map(i => i.text || "").join("");
+    loading.remove();
+    addMsg(text, 'bot');
+  } catch (e) {
+    loading.textContent = 'Error. Intenta de nuevo.';
+  }
+
+  document.getElementById('btnSend').disabled = false;
+}
+
+function addMsg(text, type) {
+  const wrap = document.getElementById('chatMessages');
+  const div  = document.createElement('div');
+  div.className   = 'msg ' + type;
+  div.textContent = text;
+  wrap.appendChild(div);
+  wrap.scrollTop = wrap.scrollHeight;
+  return div;
+}
