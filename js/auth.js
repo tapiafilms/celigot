@@ -46,15 +46,45 @@ async function onAuthSuccess(user) {
   const profile = await sbGetProfile(user.id);
 
   if (profile && profile.condicion) {
-    /* ── Usuario con perfil completo ── */
+    /* ── Usuario con perfil completo en Supabase ── */
     currentProfile = profile;
     _syncProfileToLocalStorage(profile);
     _refreshAllUI();
+
   } else {
-    /* ── Usuario nuevo o sin perfil — mostrar onboarding ── */
-    if (typeof injectOnboardingStyles === 'function') injectOnboardingStyles();
-    if (typeof showOnboarding         === 'function') showOnboarding();
+    /* ── Perfil sin datos médicos: verificar si hay datos en localStorage para migrar ── */
+    const localData = _getLocalProfileData();
+
+    if (localData && localData.condicion) {
+      /* Migrar datos del localStorage (sistema antiguo) → Supabase */
+      console.log('[CeliGO] Migrando perfil local a Supabase...');
+      const saved = await sbUpsertProfile(user.id, {
+        email:        user.email          || '',
+        nombre:       localData.nombre    || '',
+        condicion:    localData.condicion || '',
+        sensibilidad: localData.sensibilidad || '',
+        alergias:     localData.alergias  || [],
+        preferencias: localData.preferencias || [],
+      });
+      if (saved) {
+        currentProfile = saved;
+        _refreshAllUI();
+        console.log('[CeliGO] Perfil migrado correctamente a Supabase.');
+      }
+    } else {
+      /* Usuario nuevo sin datos — mostrar onboarding */
+      if (typeof injectOnboardingStyles === 'function') injectOnboardingStyles();
+      if (typeof showOnboarding         === 'function') showOnboarding();
+    }
   }
+}
+
+/* Leer perfil desde localStorage de forma segura */
+function _getLocalProfileData() {
+  try {
+    const raw = localStorage.getItem('celigo_profile_v1');
+    return raw ? JSON.parse(raw) : null;
+  } catch(e) { return null; }
 }
 
 /* Sincronizar perfil de Supabase → localStorage (caché para funciones síncronas) */
@@ -316,33 +346,39 @@ function triggerPhotoUpload() {
   document.getElementById('ppPhotoInput')?.click();
 }
 
-/* handleProfilePhoto — llamado tanto desde el panel como desde MI PERFIL */
+/* handleProfilePhoto — llamado desde el panel de perfil Y desde la pestaña Mi Perfil */
 async function handleProfilePhoto(input) {
   const file = input?.files?.[0];
   if (!file) return;
 
-  const ppImg  = document.getElementById('ppAvatarImg');
-  const ppInit = document.getElementById('ppAvatarInitials');
-  const tbImg  = document.getElementById('topbarAvatarImg');
-  const tbInit = document.getElementById('topbarAvatarInitials');
+  /* Todos los elementos de imagen que deben actualizarse */
+  const ppImg       = document.getElementById('ppAvatarImg');
+  const ppInit      = document.getElementById('ppAvatarInitials');
+  const tbImg       = document.getElementById('topbarAvatarImg');
+  const tbInit      = document.getElementById('topbarAvatarInitials');
+  const tabPreview  = document.getElementById('profilePhotoPreview');      /* pestaña Mi Perfil */
+  const tabHolder   = document.getElementById('profileHeroPlaceholder');   /* pestaña Mi Perfil */
 
-  /* Preview local inmediato (sin esperar upload) */
+  /* Preview local inmediato en TODOS los elementos */
   const localObjectUrl = URL.createObjectURL(file);
-  if (ppImg) { ppImg.src = localObjectUrl; ppImg.style.display = 'block'; }
-  if (ppInit) ppInit.style.display = 'none';
+  if (ppImg)      { ppImg.src = localObjectUrl; ppImg.style.display = 'block'; }
+  if (ppInit)     ppInit.style.display = 'none';
+  if (tabPreview) { tabPreview.src = localObjectUrl; tabPreview.style.display = 'block'; }
+  if (tabHolder)  tabHolder.style.display = 'none';
 
   if (currentUser) {
-    /* ── Subir a Supabase Storage ── */
+    /* ── Subir a Supabase Storage (comprimida) ── */
     const publicUrl = await sbUploadAvatar(currentUser.id, file);
     if (publicUrl) {
       /* Actualizar topbar */
       if (tbImg)  { tbImg.src = publicUrl; tbImg.style.display = 'block'; }
       if (tbInit) tbInit.style.display = 'none';
 
-      /* Actualizar también la preview del avatar del panel */
-      if (ppImg)  { ppImg.src = publicUrl; }
+      /* Actualizar preview del panel y pestaña con URL permanente */
+      if (ppImg)      ppImg.src = publicUrl;
+      if (tabPreview) tabPreview.src = publicUrl;
 
-      /* Guardar URL en la BD y en currentProfile */
+      /* Guardar URL en BD y en currentProfile */
       await sbUpsertProfile(currentUser.id, { avatar_url: publicUrl });
       if (currentProfile) currentProfile.avatar_url = publicUrl;
 
@@ -357,14 +393,16 @@ async function handleProfilePhoto(input) {
       reader.onload = (e) => {
         const b64 = e.target.result;
         try { localStorage.setItem('celigo_profile_photo', b64); } catch(err) {}
-        if (tbImg)  { tbImg.src = b64; tbImg.style.display = 'block'; }
-        if (tbInit) tbInit.style.display = 'none';
+        if (tbImg)      { tbImg.src = b64; tbImg.style.display = 'block'; }
+        if (tbInit)     tbInit.style.display = 'none';
+        if (tabPreview) { tabPreview.src = b64; tabPreview.style.display = 'block'; }
+        if (tabHolder)  tabHolder.style.display = 'none';
       };
       reader.readAsDataURL(blob);
     } catch(e) { console.warn('[CeliGO] compressImage fallback:', e); }
   }
 
-  /* Limpiar input para que onChange vuelva a disparar si el usuario sube la misma imagen */
+  /* Limpiar input para que onChange vuelva a disparar si sube la misma imagen */
   if (input) input.value = '';
 }
 
