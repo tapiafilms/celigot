@@ -33,6 +33,9 @@
 <!-- ═══ FUENTES ═══ -->
 <link href="https://fonts.googleapis.com/css2?family=Funnel+Display:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="css/styles.css">
+
+<!-- ═══ SUPABASE JS (CDN) — debe cargar antes que cualquier JS de la app ═══ -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 </head>
 <body>
 
@@ -42,8 +45,8 @@
     <div class="logo">
       <img src="img/logo-full.png" alt="CeliGO">
     </div>
-    <!-- Avatar de perfil — click abre MI PERFIL -->
-    <button class="topbar-avatar" id="topbarAvatar" onclick="switchTab('alergias',null)" title="Mi perfil">
+    <!-- Avatar de perfil — click abre el panel de perfil -->
+    <button class="topbar-avatar" id="topbarAvatar" onclick="openProfilePanel()" title="Mi perfil">
       <img id="topbarAvatarImg" alt="Foto de perfil" style="display:none;">
       <span id="topbarAvatarInitials">CE</span>
     </button>
@@ -608,7 +611,11 @@
 </div><!-- /info-column -->
 </div><!-- /desktop-layout -->
 
-<!-- JS: orden importa — places y app primero, luego scanner y chat -->
+<!-- ═══ SUPABASE — debe ir primero; los demás dependen de sb / currentUser ═══ -->
+<script src="js/supabase-client.js"></script>
+<script src="js/auth.js"></script>
+
+<!-- ═══ APP PRINCIPAL — orden importa ═══ -->
 <script src="js/places.js"></script>
 <script src="js/onboarding.js"></script>
 <script src="js/app.js"></script>
@@ -617,6 +624,59 @@
 <script src="js/restaurant-detail.js"></script>
 <script src="js/store-detail.js"></script>
 <script src="js/parallax.js"></script>
+
+<!-- ═══ PANEL DE PERFIL (drawer lateral izquierdo) ═══ -->
+<div id="profilePanel">
+  <!-- Fondo oscuro — click cierra el panel -->
+  <div class="pp-overlay" onclick="closeProfilePanel()"></div>
+
+  <!-- Drawer -->
+  <div class="pp-drawer">
+
+    <!-- Header con foto de hojas -->
+    <div class="pp-header">
+      <button class="pp-close" onclick="closeProfilePanel()" title="Cerrar">✕</button>
+
+      <!-- Avatar grande -->
+      <div class="pp-avatar-wrap" onclick="triggerPhotoUpload()" title="Cambiar foto">
+        <div class="pp-avatar">
+          <img id="ppAvatarImg" alt="Foto de perfil" style="display:none;">
+          <span id="ppAvatarInitials">CE</span>
+        </div>
+        <div class="pp-avatar-edit">📷</div>
+      </div>
+
+      <!-- Input oculto para subir foto -->
+      <input
+        type="file"
+        id="ppPhotoInput"
+        accept="image/*"
+        capture="environment"
+        style="display:none"
+        onchange="handleProfilePhoto(this)"
+      >
+    </div>
+
+    <!-- Info del perfil -->
+    <div class="pp-body">
+      <div id="ppProfileInfo">
+        <!-- Renderizado dinámicamente por renderProfilePanel() en auth.js -->
+        <div class="pp-name">Cargando…</div>
+      </div>
+    </div>
+
+    <!-- Botones de acción -->
+    <div class="pp-footer">
+      <button class="pp-btn-edit" onclick="closeProfilePanel(); resetOnboarding()">
+        ✏️ Editar perfil
+      </button>
+      <button class="pp-btn-logout" onclick="handleLogout()">
+        Cerrar sesión
+      </button>
+    </div>
+
+  </div><!-- /pp-drawer -->
+</div><!-- /profilePanel -->
 
 <!-- ═══ PWA: Service Worker + Install Banner ═══ -->
 <script>

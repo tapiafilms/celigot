@@ -60,6 +60,8 @@ function buildAIContext() {
 
 /* ── PANTALLA DE ONBOARDING ── */
 function showOnboarding() {
+  if (document.getElementById('onboarding-overlay')) return;
+
   const overlay = document.createElement('div');
   overlay.id = 'onboarding-overlay';
   overlay.innerHTML = `
@@ -197,6 +199,16 @@ function showOnboarding() {
     </div>
   `;
   document.body.appendChild(overlay);
+
+  /* Pre-rellenar nombre si viene del signup */
+  const pendingNombre = sessionStorage.getItem('celigo_pending_nombre');
+  if (pendingNombre) {
+    setTimeout(() => {
+      const el = document.getElementById('ob-nombre');
+      if (el) { el.value = pendingNombre; }
+      sessionStorage.removeItem('celigo_pending_nombre');
+    }, 60);
+  }
 }
 
 /* ── ESTADO TEMPORAL DEL ONBOARDING ── */
@@ -245,7 +257,25 @@ function obFinish() {
   obData.preferencias = [...document.querySelectorAll('#ob-preferencias .ob-chip.selected')]
     .map(c => c.dataset.val);
 
+  /* Guardar en localStorage (caché sincrónico para la IA) */
   saveProfileData(obData);
+
+  /* ── Guardar en Supabase (si hay sesión) ── */
+  (async () => {
+    if (typeof sb !== 'undefined' && typeof currentUser !== 'undefined' && currentUser) {
+      const saved = await sbUpsertProfile(currentUser.id, {
+        email:        currentUser.email || '',
+        nombre:       obData.nombre       || '',
+        condicion:    obData.condicion    || '',
+        sensibilidad: obData.sensibilidad || '',
+        alergias:     obData.alergias     || [],
+        preferencias: obData.preferencias || [],
+      });
+      if (saved) {
+        currentProfile = saved;
+      }
+    }
+  })();
 
   // Mostrar resumen
   if (obData.nombre) {
@@ -271,10 +301,14 @@ function obFinish() {
 
 function obClose() {
   const overlay = document.getElementById('onboarding-overlay');
+  if (!overlay) return;
   overlay.style.animation = 'obFadeOut 0.3s ease forwards';
   setTimeout(() => {
     overlay.remove();
-    switchTab('restaurantes', document.querySelectorAll('.tab')[1]);
+    /* Actualizar UI con el perfil recién guardado */
+    if (typeof _refreshAllUI   === 'function') _refreshAllUI();
+    if (typeof updateTopbarAvatar === 'function') updateTopbarAvatar();
+    switchTab('restaurantes', document.querySelectorAll('.tab')[0]);
   }, 300);
 }
 
@@ -443,11 +477,7 @@ function injectOnboardingStyles() {
   document.head.appendChild(style);
 }
 
-/* ── INIT: revisar si ya tiene perfil ── */
-document.addEventListener('DOMContentLoaded', () => {
-  const profile = loadProfile();
-  if (!profile) {
-    injectOnboardingStyles();
-    showOnboarding();
-  }
-});
+/* ── INIT: el flujo de autenticación lo maneja auth.js ──
+   El onboarding solo se muestra cuando auth.js lo llame
+   explícitamente después de verificar la sesión Supabase.
+   ──────────────────────────────────────────────────── */

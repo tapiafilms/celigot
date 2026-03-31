@@ -159,17 +159,36 @@ function renderProfileSummary() {
 }
 
 function resetOnboarding() {
-  localStorage.removeItem('celigo_profile_v1');
+  /* Limpiar caché local del perfil (se volverá a llenar tras el onboarding) */
+  try { localStorage.removeItem('celigo_profile_v1'); } catch(e) {}
+
+  /* Resetear el estado en memoria para que el UI no muestre datos viejos */
+  if (typeof currentProfile !== 'undefined') currentProfile = null;
+
   if (typeof injectOnboardingStyles === 'function') injectOnboardingStyles();
-  if (typeof showOnboarding === 'function') showOnboarding();
+  if (typeof showOnboarding         === 'function') showOnboarding();
 }
 
-/* ══ GUARDAR PERFIL (alergias del editor) ══ */
+/* ══ GUARDAR PERFIL (alergias del editor en la pestaña MI PERFIL) ══ */
 function saveProfile() {
   updateAllergyBanner();
   updateProfileHero();
   renderDescubrePage();
   updateTopbarAvatar();
+
+  /* Sincronizar alergias adicionales con Supabase si hay sesión */
+  (async () => {
+    if (typeof sb !== 'undefined' && typeof currentUser !== 'undefined' && currentUser) {
+      const extraAllergies = typeof getAllergyNames === 'function' ? getAllergyNames() : [];
+      const current = typeof loadProfile === 'function' ? loadProfile() : {};
+      /* Mezclar alergias del onboarding con las del editor */
+      const merged = [...new Set([...(current?.alergias || []), ...extraAllergies])];
+      await sbUpsertProfile(currentUser.id, { alergias: merged });
+      if (typeof currentProfile !== 'undefined' && currentProfile) {
+        currentProfile.alergias = merged;
+      }
+    }
+  })();
 
   const btn = document.querySelector('#page-alergias .btn-primary');
   if (!btn) return;
@@ -219,31 +238,21 @@ function injectProfileStyles() {
   document.head.appendChild(style);
 }
 
-/* ══ FOTO DE PERFIL ══ */
-function handleProfilePhoto(input) {
-  const file = input.files[0];
-  if (!file) return;
-  const reader = new FileReader();
-  reader.onload = function(e) {
-    const img = document.getElementById('profilePhotoPreview');
-    const placeholder = document.getElementById('profileHeroPlaceholder');
-    img.src = e.target.result;
-    img.style.display = 'block';
-    if (placeholder) placeholder.style.display = 'none';
-    // Guardar en localStorage
-    try { localStorage.setItem('celigo_profile_photo', e.target.result); } catch(err) {}
-    updateTopbarAvatar();
-  };
-  reader.readAsDataURL(file);
-}
-
+/* ══ FOTO DE PERFIL ══
+   handleProfilePhoto está definida en auth.js
+   (con compresión + upload a Supabase Storage).
+   loadProfilePhoto lee desde localStorage/Supabase.  ══ */
 function loadProfilePhoto() {
   try {
-    const saved = localStorage.getItem('celigo_profile_photo');
-    if (saved) {
-      const img = document.getElementById('profilePhotoPreview');
+    /* Primero intentar URL de Supabase desde el perfil en memoria */
+    const avatarUrl = (typeof currentProfile !== 'undefined' && currentProfile?.avatar_url)
+      ? currentProfile.avatar_url
+      : localStorage.getItem('celigo_profile_photo');
+
+    if (avatarUrl) {
+      const img         = document.getElementById('profilePhotoPreview');
       const placeholder = document.getElementById('profileHeroPlaceholder');
-      if (img) { img.src = saved; img.style.display = 'block'; }
+      if (img) { img.src = avatarUrl; img.style.display = 'block'; }
       if (placeholder) placeholder.style.display = 'none';
     }
   } catch(err) {}
@@ -322,29 +331,35 @@ function renderDescubrePage() {
 
 /* ══ AVATAR DEL TOPBAR ══ */
 function updateTopbarAvatar() {
-  const img        = document.getElementById('topbarAvatarImg');
-  const initials   = document.getElementById('topbarAvatarInitials');
-  const profile    = typeof loadProfile === 'function' ? loadProfile() : null;
+  const img      = document.getElementById('topbarAvatarImg');
+  const initials = document.getElementById('topbarAvatarInitials');
+  const profile  = (typeof currentProfile !== 'undefined' && currentProfile)
+    ? currentProfile
+    : (typeof loadProfile === 'function' ? loadProfile() : null);
 
-  try {
-    const saved = localStorage.getItem('celigo_profile_photo');
-    if (saved && img) {
-      img.src = saved;
-      img.style.display = 'block';
-      if (initials) initials.style.display = 'none';
-      return;
-    }
-  } catch(e) {}
+  /* Intentar mostrar foto: primero Supabase, luego localStorage */
+  let avatarUrl = null;
+  if (profile?.avatar_url) {
+    avatarUrl = profile.avatar_url;
+  } else {
+    try { avatarUrl = localStorage.getItem('celigo_profile_photo'); } catch(e) {}
+  }
 
-  /* Sin foto: mostrar iniciales del nombre o "CE" */
+  if (avatarUrl && img) {
+    img.src = avatarUrl;
+    img.style.display = 'block';
+    if (initials) initials.style.display = 'none';
+    return;
+  }
+
+  /* Sin foto: iniciales */
   if (img) img.style.display = 'none';
   if (initials) {
-    const nombre = profile?.nombre || '';
-    const parts  = nombre.trim().split(' ');
+    const nombre = profile?.nombre || (typeof currentUser !== 'undefined' ? currentUser?.email?.split('@')[0] : '') || '';
+    const parts  = nombre.trim().split(/\s+/);
     initials.textContent = parts.length >= 2
       ? (parts[0][0] + parts[1][0]).toUpperCase()
-      : nombre.length > 0 ? nombre[0].toUpperCase() + (nombre[1] || '').toUpperCase()
-      : 'CE';
+      : nombre.slice(0, 2).toUpperCase() || 'CE';
     initials.style.display = '';
   }
 }
