@@ -24,12 +24,46 @@ function switchTab(name, el, fromNav = false) {
   document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
   document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
 
-  document.getElementById('page-' + name).classList.add('active');
+  const pageEl = document.getElementById('page-' + name);
+  if (!pageEl) return;
+  pageEl.classList.add('active');
 
   const order = ['restaurantes', 'asistente', 'scanner', 'tiendas', 'descubre'];
   const idx = order.indexOf(name);
-  document.querySelectorAll('.tab')[idx]?.classList.add('active');
-  document.querySelectorAll('.nav-btn')[idx]?.classList.add('active');
+  if (idx >= 0) {
+    document.querySelectorAll('.tab')[idx]?.classList.add('active');
+    document.querySelectorAll('.nav-btn')[idx]?.classList.add('active');
+  }
+
+  /* Inicializar feed al entrar a DESCUBRE */
+  if (name === 'descubre' && typeof initDescubreFeed === 'function') {
+    initDescubreFeed();
+  }
+
+  const appPages = document.querySelector('.app-pages');
+  if (appPages && window.innerWidth >= 900) {
+    appPages.scrollTop = 0;
+  } else {
+    window.scrollTo({ top: 0, behavior: 'instant' });
+    document.documentElement.scrollTop = 0;
+    document.body.scrollTop = 0;
+  }
+}
+
+/* ══ NAVEGAR AL PERFIL (via avatar fijo) ══ */
+function goToProfile() {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+
+  const pageEl = document.getElementById('page-perfil');
+  if (pageEl) pageEl.classList.add('active');
+
+  /* Refrescar datos del perfil */
+  loadProfilePhoto();
+  updateProfileHero();
+  renderProfileSummary();
+  buildAllergyGrid();
 
   const appPages = document.querySelector('.app-pages');
   if (appPages && window.innerWidth >= 900) {
@@ -190,7 +224,7 @@ function saveProfile() {
     }
   })();
 
-  const btn = document.querySelector('#page-alergias .btn-primary');
+  const btn = document.querySelector('#page-perfil .btn-primary');
   if (!btn) return;
   btn.textContent = '✓ Perfil guardado';
   btn.style.background = 'var(--mint)';
@@ -279,65 +313,23 @@ function updateProfileHero() {
   badgeEl.innerHTML = tags.map(t => `<span class="ps-tag ${t.cls}">${t.text}</span>`).join('');
 }
 
-/* ══ SECCIÓN DESCUBRE ══ */
+/* ══ SECCIÓN DESCUBRE — ahora es el feed social ══
+   El feed se inicializa en initDescubreFeed() de descubre.js
+   Esta función se mantiene por compatibilidad con llamadas existentes.  */
 function renderDescubrePage() {
-  const profile = typeof loadProfile === 'function' ? loadProfile() : null;
-  const condMap = { celiaco:'Celíaco ⚕️', intolerante:'Intolerante al gluten ⚡', preferencia:'Sin gluten 🌱' };
-  const sensMap = { alta:'Sensibilidad alta 🔴', media:'Sensibilidad media 🟡', baja:'Sensibilidad baja 🟢' };
-
-  const emptyEl   = document.getElementById('descubreEmpty');
-  const filledEl  = document.getElementById('descubreFilled');
-  const statRowEl = document.getElementById('descubreStatRow');
-  const restricEl = document.getElementById('descubreRestricciones');
-
-  if (!profile || !profile.condicion) {
-    if (emptyEl)  emptyEl.style.display  = '';
-    if (filledEl) filledEl.style.display = 'none';
-  } else {
-    if (emptyEl)  emptyEl.style.display  = 'none';
-    if (filledEl) filledEl.style.display = '';
-
-    if (statRowEl) {
-      const nombre = profile.nombre ? `<div class="descubre-hello">Hola, <strong>${profile.nombre}</strong> 👋</div>` : '';
-      const cond = condMap[profile.condicion] || profile.condicion;
-      const sens = profile.sensibilidad ? sensMap[profile.sensibilidad] || profile.sensibilidad : null;
-      statRowEl.innerHTML = `
-        ${nombre}
-        <div class="descubre-tag-row">
-          <span class="descubre-tag coral">${cond}</span>
-          ${sens ? `<span class="descubre-tag amber">${sens}</span>` : ''}
-        </div>
-      `;
-    }
-  }
-
-  /* Restricciones activas */
-  if (restricEl) {
-    const extraNames = typeof getAllergyNames === 'function' ? getAllergyNames() : [];
-    const profileAlergias = profile?.alergias || [];
-    const profilePrefs    = profile?.preferencias || [];
-    const all = [...new Set([...profileAlergias, ...profilePrefs, ...extraNames])];
-
-    if (all.length > 0) {
-      restricEl.innerHTML = `
-        <div style="display:flex;flex-wrap:wrap;gap:6px;margin-top:4px;">
-          ${all.map(a => `<span class="descubre-tag mint">${a}</span>`).join('')}
-        </div>`;
-    } else {
-      restricEl.innerHTML = `<p style="font-size:13px;color:var(--text-muted);">Sin restricciones configuradas todavía.</p>`;
-    }
+  /* Actualizar avatar del formulario de creación si ya está cargado */
+  if (typeof updateFeedCreateAvatar === 'function') {
+    updateFeedCreateAvatar();
   }
 }
 
-/* ══ AVATAR DEL TOPBAR ══ */
+/* ══ AVATAR DEL TOPBAR + AVATAR FIJO ══ */
 function updateTopbarAvatar() {
-  const img      = document.getElementById('topbarAvatarImg');
-  const initials = document.getElementById('topbarAvatarInitials');
   const profile  = (typeof currentProfile !== 'undefined' && currentProfile)
     ? currentProfile
     : (typeof loadProfile === 'function' ? loadProfile() : null);
 
-  /* Intentar mostrar foto: primero Supabase, luego localStorage */
+  /* Intentar URL de avatar */
   let avatarUrl = null;
   if (profile?.avatar_url) {
     avatarUrl = profile.avatar_url;
@@ -345,22 +337,38 @@ function updateTopbarAvatar() {
     try { avatarUrl = localStorage.getItem('celigo_profile_photo'); } catch(e) {}
   }
 
+  /* Iniciales */
+  const nombre  = profile?.nombre || (typeof currentUser !== 'undefined' ? currentUser?.email?.split('@')[0] : '') || '';
+  const parts   = nombre.trim().split(/\s+/);
+  const initStr = parts.length >= 2
+    ? (parts[0][0] + parts[1][0]).toUpperCase()
+    : nombre.slice(0, 2).toUpperCase() || 'CE';
+
+  /* Actualizar topbar interno */
+  const img      = document.getElementById('topbarAvatarImg');
+  const initials = document.getElementById('topbarAvatarInitials');
   if (avatarUrl && img) {
-    img.src = avatarUrl;
-    img.style.display = 'block';
+    img.src = avatarUrl; img.style.display = 'block';
     if (initials) initials.style.display = 'none';
-    return;
+  } else {
+    if (img) img.style.display = 'none';
+    if (initials) { initials.textContent = initStr; initials.style.display = ''; }
   }
 
-  /* Sin foto: iniciales */
-  if (img) img.style.display = 'none';
-  if (initials) {
-    const nombre = profile?.nombre || (typeof currentUser !== 'undefined' ? currentUser?.email?.split('@')[0] : '') || '';
-    const parts  = nombre.trim().split(/\s+/);
-    initials.textContent = parts.length >= 2
-      ? (parts[0][0] + parts[1][0]).toUpperCase()
-      : nombre.slice(0, 2).toUpperCase() || 'CE';
-    initials.style.display = '';
+  /* Actualizar avatar fijo (esquina superior izquierda) */
+  const fixedImg      = document.getElementById('fixedAvatarImg');
+  const fixedInitials = document.getElementById('fixedAvatarInitials');
+  if (avatarUrl && fixedImg) {
+    fixedImg.src = avatarUrl; fixedImg.style.display = 'block';
+    if (fixedInitials) fixedInitials.style.display = 'none';
+  } else {
+    if (fixedImg) fixedImg.style.display = 'none';
+    if (fixedInitials) { fixedInitials.textContent = initStr; fixedInitials.style.display = ''; }
+  }
+
+  /* Actualizar también el avatar del feed de descubre si está cargado */
+  if (typeof updateFeedCreateAvatar === 'function') {
+    updateFeedCreateAvatar();
   }
 }
 

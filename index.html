@@ -39,6 +39,12 @@
 </head>
 <body>
 
+<!-- AVATAR FIJO — esquina superior izquierda, siempre visible -->
+<button class="profile-avatar-fixed" id="profileAvatarFixed" onclick="goToProfile()" title="Mi perfil">
+  <img id="fixedAvatarImg" alt="Foto de perfil" style="display:none;">
+  <span id="fixedAvatarInitials">CE</span>
+</button>
+
 <!-- TOP BAR -->
 <div class="topbar">
   <div class="topbar-head">
@@ -161,7 +167,7 @@
     <div class="allergy-active-banner" id="allergyBanner">
       <svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
       <p id="allergyBannerText">Analizando también para tus alergias guardadas</p>
-      <button onclick="switchTab('alergias', document.querySelectorAll('.tab')[3])">Editar</button>
+      <button onclick="goToProfile()">Editar</button>
     </div>
 
     <div class="upload-zone" id="uploadZone">
@@ -351,8 +357,15 @@
   <div id="storeList"></div>
 </div>
 
-<!-- ══ ALERGIAS / PERFIL ══ -->
-<div class="page" id="page-alergias">
+<!-- ══ PERFIL (página separada, acceso via avatar) ══ -->
+<div class="page" id="page-perfil">
+
+  <!-- Botón volver -->
+  <button class="perfil-back-btn" onclick="history.back() || switchTab('restaurantes', document.querySelectorAll('.tab')[0])" title="Volver">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M19 12H5M12 5l-7 7 7 7"/>
+    </svg>
+  </button>
 
   <!-- HERO FOTO DE PERFIL -->
   <div class="profile-hero" id="profileHero">
@@ -420,82 +433,56 @@
   </div><!-- /profile-body -->
 </div>
 
-<!-- ══ DESCUBRE ══ -->
+<!-- ══ DESCUBRE — Feed social ══ -->
 <div class="page" id="page-descubre">
   <div class="page-title">Descubre</div>
-  <div class="page-sub">Tu perfil celíaco en un vistazo. Toca el avatar para editar.</div>
+  <div class="page-sub">Comparte productos sin gluten, recetas y tips con la comunidad.</div>
 
-  <!-- Resumen dinámico del perfil -->
-  <div id="descubreProfileCard"></div>
-
-  <!-- Card: estado del perfil -->
-  <div class="descubre-card" id="descubreStatusCard">
-    <div class="descubre-card-tag">👤 Tu perfil</div>
-    <div class="descubre-empty" id="descubreEmpty">
-      <p>Aún no configuraste tu perfil.</p>
-      <button class="btn-primary" style="margin-top:12px;" onclick="switchTab('alergias',null)">
-        Configurar ahora
-      </button>
+  <!-- Card: Crear publicación -->
+  <div class="feed-create-card" id="feedCreateCard">
+    <div class="feed-create-top">
+      <div class="feed-create-avatar" id="feedCreateAvatar">
+        <img id="feedCreateAvatarImg" alt="" style="display:none;">
+        <span id="feedCreateAvatarInitials">CE</span>
+      </div>
+      <textarea
+        id="feedPostText"
+        class="feed-create-textarea"
+        placeholder="¿Encontraste algo rico sin gluten? ¡Cuéntanos! 🌾"
+        rows="2"
+        oninput="feedTextareaGrow(this)"
+      ></textarea>
     </div>
-    <div class="descubre-filled" id="descubreFilled" style="display:none;">
-      <div class="descubre-stat-row" id="descubreStatRow"></div>
-      <button class="btn-ghost" style="margin-top:14px;width:100%;" onclick="switchTab('alergias',null)">
-        Editar mi perfil →
-      </button>
-    </div>
-  </div>
 
-  <!-- Card: mis restricciones activas -->
-  <div class="descubre-card">
-    <div class="descubre-card-tag">🛡️ Restricciones activas</div>
-    <div class="descubre-restricciones" id="descubreRestricciones">
-      <p style="font-size:13px;color:var(--text-muted);">Ve a tu perfil para configurar tus restricciones.</p>
+    <!-- Preview imagen seleccionada -->
+    <div class="feed-img-preview-wrap" id="feedImgPreviewWrap" style="display:none;">
+      <img id="feedImgPreview" alt="Vista previa" class="feed-img-preview">
+      <button class="feed-img-remove" onclick="removeFeedImage()" title="Quitar imagen">✕</button>
     </div>
-  </div>
 
-  <!-- Card: qué puede hacer CeliGO -->
-  <div class="descubre-card">
-    <div class="descubre-card-tag">⚡ Lo que CeliGO hace por ti</div>
-    <div style="display:flex;flex-direction:column;gap:12px;margin-top:4px;">
-      <div class="descubre-feature">
-        <div class="descubre-feature-icon">🍽️</div>
-        <div><strong>Filtra restaurantes</strong><br><span>Encuentra lugares seguros según tu condición</span></div>
-      </div>
-      <div class="descubre-feature">
-        <div class="descubre-feature-icon">📸</div>
-        <div><strong>Escanea etiquetas</strong><br><span>La IA detecta gluten y tus alergias en segundos</span></div>
-      </div>
-      <div class="descubre-feature">
-        <div class="descubre-feature-icon">🤖</div>
-        <div><strong>Asistente personalizado</strong><br><span>Respuestas adaptadas a tu perfil específico</span></div>
-      </div>
-      <div class="descubre-feature">
-        <div class="descubre-feature-icon">🛒</div>
-        <div><strong>Guía de compras</strong><br><span>Productos verificados en tiendas y delivery</span></div>
-      </div>
+    <div class="feed-create-actions">
+      <label class="feed-add-photo-btn" for="feedPhotoInput" title="Agregar foto">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z"/>
+          <circle cx="12" cy="13" r="4"/>
+        </svg>
+        Foto
+      </label>
+      <input type="file" id="feedPhotoInput" accept="image/*" style="display:none;" onchange="handleFeedPhoto(this)">
+      <button class="feed-publish-btn" id="feedPublishBtn" onclick="publishPost()">Publicar</button>
     </div>
   </div>
 
-  <!-- Card: estadísticas celiaquía -->
-  <div class="descubre-card">
-    <div class="descubre-card-tag">📊 Celiaquía en Chile</div>
-    <div class="descubre-stats-grid">
-      <div class="descubre-stat">
-        <div class="descubre-stat-num">1%</div>
-        <div class="descubre-stat-label">de la población</div>
-      </div>
-      <div class="descubre-stat">
-        <div class="descubre-stat-num">70%</div>
-        <div class="descubre-stat-label">sin diagnóstico</div>
-      </div>
-      <div class="descubre-stat">
-        <div class="descubre-stat-num">+200</div>
-        <div class="descubre-stat-label">síntomas posibles</div>
-      </div>
-      <div class="descubre-stat">
-        <div class="descubre-stat-num">3×</div>
-        <div class="descubre-stat-label">más frecuente en mujeres</div>
-      </div>
+  <!-- Lista de posts -->
+  <div id="feedList">
+    <div class="feed-loading" id="feedLoading">
+      <div class="spinner"></div>
+      <p>Cargando publicaciones…</p>
+    </div>
+    <div class="feed-empty" id="feedEmpty" style="display:none;">
+      <div style="font-size:40px;margin-bottom:8px;">🌾</div>
+      <p>Aún no hay publicaciones.</p>
+      <p style="font-size:12px;color:var(--text-hint);margin-top:4px;">¡Sé el primero en compartir algo!</p>
     </div>
   </div>
 
@@ -624,6 +611,7 @@
 <script src="js/restaurant-detail.js"></script>
 <script src="js/store-detail.js"></script>
 <script src="js/parallax.js"></script>
+<script src="js/descubre.js"></script>
 
 <!-- ═══ PANEL DE PERFIL (drawer lateral izquierdo) ═══ -->
 <div id="profilePanel">
@@ -818,9 +806,13 @@ const urlParams = new URLSearchParams(window.location.search);
 const tabParam = urlParams.get('tab');
 if (tabParam) {
   window.addEventListener('DOMContentLoaded', () => {
-    const order = ['restaurantes', 'asistente', 'scanner', 'tiendas', 'alergias'];
+    const order = ['restaurantes', 'asistente', 'scanner', 'tiendas', 'descubre', 'perfil'];
     if (order.includes(tabParam)) {
-      switchTab(tabParam, document.querySelectorAll('.tab')[order.indexOf(tabParam)]);
+      if (tabParam === 'perfil') {
+        goToProfile();
+      } else {
+        switchTab(tabParam, document.querySelectorAll('.tab')[order.indexOf(tabParam)]);
+      }
     }
   });
 }

@@ -1273,7 +1273,7 @@ body > .topbar { display: none; }
 }
 
 /* ══ PERFIL HERO ══ */
-#page-alergias { padding: 0; }
+#page-perfil { padding: 0; }
 
 .profile-hero {
   position: relative;
@@ -1398,7 +1398,310 @@ body > .topbar { display: none; }
 
 /* Desktop override */
 @media (min-width: 900px) {
-  .app-column #page-alergias { padding: 0; }
+  .app-column #page-perfil { padding: 0; }
   .app-column .profile-body { padding: 0 16px 16px; }
   .profile-hero { height: 380px; }
 }
+
+/* ══ AVATAR FIJO (esquina sup. izquierda) ══ */
+.profile-avatar-fixed {
+  position: fixed;
+  top: 14px;
+  left: 14px;
+  z-index: 300;
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  border: 2.5px solid var(--gold);
+  background: var(--green-dark);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.35);
+  transition: transform 0.18s, box-shadow 0.18s, border-color 0.18s;
+  padding: 0;
+}
+.profile-avatar-fixed:hover {
+  transform: scale(1.08);
+  box-shadow: 0 4px 18px rgba(232,168,32,0.4);
+  border-color: #fff;
+}
+.profile-avatar-fixed img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 50%;
+}
+#fixedAvatarInitials {
+  font-family: 'Funnel Display', sans-serif;
+  font-weight: 800;
+  font-size: 14px;
+  color: var(--gold);
+  letter-spacing: -0.5px;
+  line-height: 1;
+}
+
+/* Botón volver en página de perfil */
+.perfil-back-btn {
+  position: absolute;
+  top: 14px;
+  left: 14px;
+  z-index: 10;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.85);
+  backdrop-filter: blur(8px);
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.15);
+  transition: background 0.15s, transform 0.15s;
+}
+.perfil-back-btn:hover { background: #fff; transform: scale(1.05); }
+.perfil-back-btn svg { width: 18px; height: 18px; stroke: var(--green-dark); }
+
+/* ══ FEED SOCIAL (DESCUBRE) ══ */
+#page-descubre { padding: 20px 16px; }
+
+.feed-create-card {
+  background: var(--surface);
+  border: 1.5px solid var(--border);
+  border-radius: 18px;
+  padding: 14px;
+  margin-bottom: 14px;
+}
+.feed-create-top {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+  margin-bottom: 10px;
+}
+.feed-create-avatar {
+  width: 38px;
+  height: 38px;
+  min-width: 38px;
+  border-radius: 50%;
+  background: var(--green-dark);
+  border: 2px solid var(--gold);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  font-family: 'Funnel Display', sans-serif;
+  font-weight: 800;
+  font-size: 13px;
+  color: var(--gold);
+}
+.feed-create-avatar img { width:100%; height:100%; object-fit:cover; border-radius:50%; }
+.feed-create-textarea {
+  flex: 1;
+  border: 1.5px solid var(--border-md);
+  border-radius: 12px;
+  padding: 10px 12px;
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: 13px;
+  color: var(--text);
+  background: var(--bg);
+  resize: none;
+  outline: none;
+  transition: border-color 0.2s;
+  line-height: 1.5;
+  min-height: 44px;
+}
+.feed-create-textarea:focus { border-color: var(--green); }
+.feed-create-actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding-top: 2px;
+}
+.feed-add-photo-btn {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-muted);
+  cursor: pointer;
+  padding: 7px 12px;
+  border-radius: 100px;
+  border: 1.5px solid var(--border-md);
+  transition: all 0.15s;
+  background: transparent;
+}
+.feed-add-photo-btn svg { width:16px; height:16px; stroke:var(--text-muted); }
+.feed-add-photo-btn:hover { border-color: var(--green); color: var(--green); }
+.feed-add-photo-btn:hover svg { stroke: var(--green); }
+.feed-publish-btn {
+  background: var(--green);
+  color: #fff;
+  border: none;
+  border-radius: 100px;
+  padding: 8px 20px;
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.18s, transform 0.15s;
+}
+.feed-publish-btn:hover { background: var(--green-dark); }
+.feed-publish-btn:active { transform: scale(0.97); }
+.feed-publish-btn:disabled { opacity: 0.55; cursor: not-allowed; }
+
+.feed-img-preview-wrap {
+  position: relative;
+  margin-bottom: 10px;
+  border-radius: 12px;
+  overflow: hidden;
+}
+.feed-img-preview {
+  width: 100%;
+  max-height: 220px;
+  object-fit: cover;
+  display: block;
+  border-radius: 12px;
+}
+.feed-img-remove {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  background: rgba(0,0,0,0.55);
+  color: #fff;
+  border: none;
+  border-radius: 50%;
+  width: 26px;
+  height: 26px;
+  font-size: 14px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+}
+
+/* Post card individual */
+.feed-post-card {
+  background: var(--surface);
+  border: 1.5px solid var(--border);
+  border-radius: 18px;
+  padding: 14px;
+  margin-bottom: 12px;
+  animation: pageIn 0.25s ease forwards;
+}
+.feed-post-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+.feed-post-avatar {
+  width: 36px;
+  height: 36px;
+  min-width: 36px;
+  border-radius: 50%;
+  background: var(--green-dark);
+  border: 2px solid var(--gold);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  font-family: 'Funnel Display', sans-serif;
+  font-weight: 800;
+  font-size: 12px;
+  color: var(--gold);
+  flex-shrink: 0;
+}
+.feed-post-avatar img { width:100%; height:100%; object-fit:cover; border-radius:50%; }
+.feed-post-meta { flex: 1; min-width: 0; }
+.feed-post-name {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.feed-post-date {
+  font-size: 11px;
+  color: var(--text-hint);
+  margin-top: 1px;
+}
+.feed-post-text {
+  font-size: 14px;
+  color: var(--text);
+  line-height: 1.6;
+  margin-bottom: 10px;
+  word-break: break-word;
+}
+.feed-post-img {
+  width: 100%;
+  border-radius: 12px;
+  object-fit: cover;
+  max-height: 280px;
+  display: block;
+  margin-bottom: 10px;
+}
+.feed-post-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding-top: 4px;
+  border-top: 1px solid var(--border);
+}
+.feed-like-btn {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-muted);
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 6px 10px;
+  border-radius: 100px;
+  transition: all 0.18s;
+  font-family: 'Plus Jakarta Sans', sans-serif;
+}
+.feed-like-btn svg {
+  width: 17px;
+  height: 17px;
+  stroke: var(--text-muted);
+  fill: none;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  transition: stroke 0.18s, fill 0.18s;
+}
+.feed-like-btn:hover { color: #e05555; background: rgba(224,85,85,0.07); }
+.feed-like-btn:hover svg { stroke: #e05555; }
+.feed-like-btn.liked { color: #e05555; }
+.feed-like-btn.liked svg { stroke: #e05555; fill: #e05555; }
+
+.feed-loading, .feed-empty {
+  text-align: center;
+  padding: 40px 20px;
+  color: var(--text-muted);
+  font-size: 14px;
+}
+.feed-loading .spinner {
+  margin: 0 auto 12px;
+}
+.feed-delete-btn {
+  margin-left: auto;
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--text-hint);
+  font-size: 13px;
+  padding: 6px 8px;
+  border-radius: 8px;
+  transition: color 0.15s, background 0.15s;
+}
+.feed-delete-btn:hover { color: var(--red); background: var(--red-light); }
