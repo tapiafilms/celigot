@@ -111,6 +111,10 @@ function _refreshAllUI() {
   if (typeof updateProfileHero     === 'function') updateProfileHero();
   if (typeof renderDescubrePage    === 'function') renderDescubrePage();
   if (typeof buildAllergyGrid      === 'function') buildAllergyGrid();
+  /* Si el usuario ya está en la sección Descubre cuando auth termina, cargar el feed */
+  if (typeof initDescubreFeed === 'function' && document.getElementById('page-descubre')?.classList.contains('active')) {
+    initDescubreFeed();
+  }
 }
 
 /* ════════════════════════════════════════════════════
