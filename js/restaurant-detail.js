@@ -443,7 +443,8 @@ Responde en JSON sin markdown:
     setTimeout(() => loadingEl.scrollIntoView({ behavior: 'smooth', block: 'nearest' }), 50);
 
   } catch (e) {
-    loadingEl.innerHTML = '<p style="color:#C0392B;font-size:13px;padding:4px 0;">Error al analizar. Intenta de nuevo.</p>';
+    console.error('[Restaurant IA Error]:', e.message || e);
+    loadingEl.innerHTML = '<p style="color:#C0392B;font-size:13px;padding:4px 0;">Servicio no disponible. Intenta en unos minutos.</p>';
   }
 }
 

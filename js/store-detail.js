@@ -408,7 +408,8 @@ Evalúa si este producto es seguro para el usuario. Si es un supermercado, da co
     setTimeout(() => loadingEl.scrollIntoView({ behavior: 'smooth', block: 'nearest' }), 50);
 
   } catch (e) {
-    loadingEl.innerHTML = '<p style="color:#C0392B;font-size:13px;padding:4px 0;">Error al evaluar. Intenta de nuevo.</p>';
+    console.error('[Store IA Error]:', e.message || e);
+    loadingEl.innerHTML = '<p style="color:#C0392B;font-size:13px;padding:4px 0;">Servicio no disponible. Intenta en unos minutos.</p>';
   }
 }
 

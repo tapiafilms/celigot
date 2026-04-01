@@ -52,8 +52,8 @@ Usa el perfil del usuario para personalizar cada respuesta. Si es celíaco con s
     addMsg(text, 'bot');
 
   } catch (e) {
-    console.error('[Chat Error]:', e);
-    loading.textContent = 'Error. Intenta de nuevo.';
+    console.error('[Chat Error]:', e.message || e);
+    loading.textContent = 'Servicio no disponible. Intenta en unos minutos.';
   }
 
   document.getElementById('btnSend').disabled = false;

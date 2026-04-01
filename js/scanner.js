@@ -77,10 +77,11 @@ Considera nombres ocultos: leche (caseína, suero, lactosa, proteína láctea, m
     const raw  = data.content.map(i => i.text || "").join("").replace(/```json|```/g, "").trim();
     showResult(JSON.parse(raw));
   } catch (e) {
-    console.error(e);
+    console.error('[Scanner Error]:', e.message || e);
     document.getElementById('loadingBox').classList.remove('show');
     document.getElementById('btnScan').disabled = false;
-    alert('Error al analizar. Intenta de nuevo.');
+    document.getElementById('btnScan').textContent = 'Servicio no disponible. Intenta en unos minutos.';
+    setTimeout(() => { document.getElementById('btnScan').textContent = 'Analizar'; }, 4000);
   }
 }
 
