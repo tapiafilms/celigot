@@ -55,15 +55,19 @@ async function onAuthSuccess(user) {
     /* ── Perfil sin datos médicos: verificar si hay datos en localStorage para migrar ── */
     const localData = _getLocalProfileData();
 
-    if (localData && localData.condicion) {
+    /* Solo migrar si el email del localStorage coincide con el usuario actual.
+       Evita contaminar una cuenta nueva con datos de un usuario anterior. */
+    const localBelongsToCurrentUser = localData?.email && localData.email === user.email;
+
+    if (localData && localData.condicion && localBelongsToCurrentUser) {
       /* Migrar datos del localStorage (sistema antiguo) → Supabase */
       console.log('[CeliGO] Migrando perfil local a Supabase...');
       const saved = await sbUpsertProfile(user.id, {
-        email:        user.email          || '',
-        nombre:       localData.nombre    || '',
-        condicion:    localData.condicion || '',
+        email:        user.email             || '',
+        nombre:       localData.nombre       || '',
+        condicion:    localData.condicion    || '',
         sensibilidad: localData.sensibilidad || '',
-        alergias:     localData.alergias  || [],
+        alergias:     localData.alergias     || [],
         preferencias: localData.preferencias || [],
       });
       if (saved) {
@@ -72,7 +76,13 @@ async function onAuthSuccess(user) {
         console.log('[CeliGO] Perfil migrado correctamente a Supabase.');
       }
     } else {
-      /* Usuario nuevo sin datos — mostrar onboarding */
+      /* Usuario nuevo (o localStorage de otro usuario) — limpiar caché y mostrar onboarding */
+      if (localData && !localBelongsToCurrentUser) {
+        try {
+          localStorage.removeItem('celigo_profile_v1');
+          localStorage.removeItem('celigo_profile_photo');
+        } catch(e) {}
+      }
       if (typeof injectOnboardingStyles === 'function') injectOnboardingStyles();
       if (typeof showOnboarding         === 'function') showOnboarding();
     }
@@ -91,6 +101,7 @@ function _getLocalProfileData() {
 function _syncProfileToLocalStorage(profile) {
   try {
     localStorage.setItem('celigo_profile_v1', JSON.stringify({
+      email:        profile.email        || '',   /* ← necesario para verificar pertenencia */
       nombre:       profile.nombre       || '',
       condicion:    profile.condicion    || '',
       sensibilidad: profile.sensibilidad || '',

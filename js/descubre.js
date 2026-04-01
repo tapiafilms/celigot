@@ -17,12 +17,10 @@ function initDescubreFeed() {
 function updateFeedCreateAvatar() {
   const img      = document.getElementById('feedCreateAvatarImg');
   const initials = document.getElementById('feedCreateAvatarInitials');
-  const profile  = (typeof currentProfile !== 'undefined' && currentProfile)
-    ? currentProfile
-    : (typeof loadProfile === 'function' ? loadProfile() : null);
+  /* Usar SOLO currentProfile (Supabase) — nunca localStorage, que puede pertenecer a otro usuario */
+  const profile  = (typeof currentProfile !== 'undefined' && currentProfile) ? currentProfile : null;
 
   let url = profile?.avatar_url || null;
-  if (!url) { try { url = localStorage.getItem('celigo_profile_photo'); } catch(e) {} }
 
   if (url && img) {
     img.src = url; img.style.display = 'block';
@@ -160,9 +158,8 @@ async function publishPost() {
     removeFeedImage();
 
     /* ── Agregar el nuevo post al feed local sin recargar ── */
-    const profile = (typeof currentProfile !== 'undefined' && currentProfile)
-      ? currentProfile
-      : (typeof loadProfile === 'function' ? loadProfile() : null);
+    /* Solo usar currentProfile (Supabase) — nunca localStorage (puede ser de otro usuario) */
+    const profile = (typeof currentProfile !== 'undefined' && currentProfile) ? currentProfile : null;
 
     feedPosts.unshift({
       ...data,
