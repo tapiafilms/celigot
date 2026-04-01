@@ -27,9 +27,14 @@ create table if not exists public.profiles (
 alter table public.profiles enable row level security;
 
 -- Política: SELECT (leer)
-create policy "Perfil: lectura propia"
+-- Cualquier usuario autenticado puede leer perfiles ajenos
+-- (necesario para mostrar nombres y avatares en el feed de Descubre).
+-- Los datos privados (condicion, sensibilidad, alergias) son solo visibles al propio usuario
+-- mediante la app, pero la tabla entera queda accesible a autenticados.
+-- Si quieres restringir solo campos públicos usa una vista o columnas individuales.
+create policy "Perfil: lectura autenticada"
   on public.profiles for select
-  using (auth.uid() = id);
+  using (auth.role() = 'authenticated');
 
 -- Política: INSERT (crear)
 create policy "Perfil: inserción propia"
@@ -197,10 +202,82 @@ create policy "Posts storage: borrado propio"
 --
 -- RESUMEN:
 --  • Tabla 'profiles' con datos médicos del usuario
---  • RLS activado — cada usuario solo ve sus propios datos
+--  • RLS activado — escritura siempre privada, lectura para autenticados
 --  • Trigger que crea el perfil automáticamente al registrarse
 --  • Bucket 'avatars' público para fotos de perfil
 --  • Tabla 'posts' para el feed social de DESCUBRE
 --  • Tabla 'post_likes' para los me gusta del feed
 --  • Bucket 'posts' para imágenes de publicaciones
+-- ═══════════════════════════════════════════════════════════════
+
+
+-- ═══════════════════════════════════════════════════════════════
+-- PARCHE — Ejecutar en Supabase si la BD ya estaba creada
+-- (Dashboard → SQL Editor → New query → pegar y ejecutar)
+-- ═══════════════════════════════════════════════════════════════
+
+-- 1. Corregir política de lectura de perfiles
+--    El feed de Descubre necesita leer perfiles de otros usuarios
+--    para mostrar nombres y avatares.
+drop policy if exists "Perfil: lectura propia"        on public.profiles;
+drop policy if exists "Perfil: lectura autenticada"   on public.profiles;
+
+create policy "Perfil: lectura autenticada"
+  on public.profiles for select
+  using (auth.role() = 'authenticated');
+
+-- 2. Crear bucket 'posts' si no existe
+insert into storage.buckets (id, name, public)
+values ('posts', 'posts', true)
+on conflict (id) do nothing;
+
+-- 3. Políticas de storage para posts (solo si no existen)
+do $$
+begin
+  if not exists (
+    select 1 from pg_policies
+    where policyname = 'Posts storage: lectura pública'
+      and tablename   = 'objects'
+  ) then
+    execute $pol$
+      create policy "Posts storage: lectura pública"
+        on storage.objects for select
+        using (bucket_id = 'posts')
+    $pol$;
+  end if;
+
+  if not exists (
+    select 1 from pg_policies
+    where policyname = 'Posts storage: subida propia'
+      and tablename   = 'objects'
+  ) then
+    execute $pol$
+      create policy "Posts storage: subida propia"
+        on storage.objects for insert
+        with check (
+          bucket_id = 'posts'
+          and auth.uid()::text = (storage.foldername(name))[1]
+        )
+    $pol$;
+  end if;
+
+  if not exists (
+    select 1 from pg_policies
+    where policyname = 'Posts storage: borrado propio'
+      and tablename   = 'objects'
+  ) then
+    execute $pol$
+      create policy "Posts storage: borrado propio"
+        on storage.objects for delete
+        using (
+          bucket_id = 'posts'
+          and auth.uid()::text = (storage.foldername(name))[1]
+        )
+    $pol$;
+  end if;
+end;
+$$;
+
+-- ═══════════════════════════════════════════════════════════════
+-- FIN DEL PARCHE
 -- ═══════════════════════════════════════════════════════════════

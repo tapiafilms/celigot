@@ -95,7 +95,20 @@ function compressFeedImage(file) {
 /* ══ Publicar post ══ */
 async function publishPost() {
   if (typeof sb === 'undefined') { alert('Error de conexión. Recarga la app.'); return; }
-  if (!currentUser) { alert('Tu sesión expiró. Recarga la página.'); return; }
+
+  /* ── Verificar sesión activa en Supabase ── */
+  let activeUser = currentUser;
+  try {
+    const { data: { session } } = await sb.auth.getSession();
+    if (!session || !session.user) {
+      alert('Tu sesión expiró. Recarga la página e inicia sesión de nuevo.');
+      return;
+    }
+    activeUser = session.user;
+    if (!currentUser) currentUser = activeUser;
+  } catch (e) {
+    if (!activeUser) { alert('No se pudo verificar la sesión. Recarga la app.'); return; }
+  }
 
   const textEl  = document.getElementById('feedPostText');
   const content = textEl?.value?.trim() || '';
@@ -105,12 +118,23 @@ async function publishPost() {
   if (btn) { btn.disabled = true; btn.textContent = 'Publicando…'; }
 
   try {
+    /* ── Garantizar que el perfil existe (resuelve FK constraint) ── */
+    await sb.from('profiles').upsert(
+      {
+        id:         activeUser.id,
+        email:      activeUser.email || '',
+        updated_at: new Date().toISOString(),
+      },
+      { onConflict: 'id' }
+    );
+
+    /* ── Subir imagen si fue adjuntada ── */
     let image_url = null;
 
     if (feedImageFile) {
       const blob     = await compressFeedImage(feedImageFile);
-      const fileName = `${currentUser.id}/${Date.now()}.jpg`;
-      const { data: uploadData, error: uploadErr } = await sb.storage
+      const fileName = `${activeUser.id}/${Date.now()}.jpg`;
+      const { error: uploadErr } = await sb.storage
         .from('posts')
         .upload(fileName, blob, { contentType: 'image/jpeg', upsert: false });
 
@@ -119,26 +143,30 @@ async function publishPost() {
         image_url = urlData?.publicUrl || null;
       } else {
         console.warn('[Descubre] Imagen no subida:', uploadErr.message);
+        /* Continuamos sin imagen — no bloqueamos la publicación */
       }
     }
 
+    /* ── Insertar el post ── */
     const { data, error } = await sb.from('posts')
-      .insert([{ user_id: currentUser.id, content, image_url }])
+      .insert([{ user_id: activeUser.id, content, image_url }])
       .select()
       .single();
 
     if (error) throw error;
 
+    /* ── Limpiar formulario ── */
     if (textEl) { textEl.value = ''; textEl.style.height = 'auto'; }
     removeFeedImage();
 
+    /* ── Agregar el nuevo post al feed local sin recargar ── */
     const profile = (typeof currentProfile !== 'undefined' && currentProfile)
       ? currentProfile
       : (typeof loadProfile === 'function' ? loadProfile() : null);
 
     feedPosts.unshift({
       ...data,
-      _nombre:     profile?.nombre     || currentUser.email?.split('@')[0] || 'Tú',
+      _nombre:     profile?.nombre     || activeUser.email?.split('@')[0] || 'Tú',
       _avatar_url: profile?.avatar_url || null,
       _likes: 0,
     });
@@ -146,7 +174,13 @@ async function publishPost() {
 
   } catch (err) {
     console.error('[Descubre] Error al publicar:', err);
-    alert('No se pudo publicar: ' + (err.message || 'error desconocido'));
+    /* Mensajes de error más claros según el tipo de fallo */
+    let msg = err.message || 'error desconocido';
+    if (msg.includes('violates foreign key'))  msg = 'Error de perfil. Cierra sesión, vuelve a entrar e intenta de nuevo.';
+    if (msg.includes('JWT') || msg.includes('token')) msg = 'Tu sesión expiró. Recarga la página e inicia sesión.';
+    if (msg.includes('row-level security'))    msg = 'Sin permiso para publicar. Verifica que tu sesión esté activa.';
+    if (msg.includes('network') || msg.includes('fetch')) msg = 'Error de red. Verifica tu conexión a internet.';
+    alert('No se pudo publicar: ' + msg);
   } finally {
     if (btn) { btn.disabled = false; btn.textContent = 'Publicar'; }
   }
@@ -193,12 +227,19 @@ async function loadFeed() {
       return;
     }
 
-    /* 2. Obtener perfiles de los autores (query separada para evitar necesidad de FK) */
+    /* 2. Obtener perfiles de los autores (query separada para evitar necesidad de FK)
+          Puede fallar silenciosamente si la política RLS de profiles aún no fue
+          actualizada en Supabase — en ese caso se usan nombres de fallback. */
     const authorIds = [...new Set(posts.map(p => p.user_id))];
-    const { data: profiles } = await sb
+    const { data: profiles, error: profErr } = await sb
       .from('profiles')
       .select('id, nombre, avatar_url')
       .in('id', authorIds);
+
+    if (profErr) {
+      console.warn('[Descubre] No se pudieron cargar perfiles de autores:', profErr.message,
+        '— Ejecuta el parche de políticas RLS en Supabase (ver supabase-setup.sql).');
+    }
 
     const profileMap = {};
     (profiles || []).forEach(p => { profileMap[p.id] = p; });
@@ -239,18 +280,33 @@ async function loadFeed() {
 
 /* ══ Renderizar todos los posts en el DOM ══ */
 function renderFeed() {
+  const feedList = document.getElementById('feedList');
   const emptyEl  = document.getElementById('feedEmpty');
+  const loadEl   = document.getElementById('feedLoading');
+
+  /* Eliminar tarjetas existentes */
   document.querySelectorAll('.feed-post-card').forEach(el => el.remove());
 
   if (!feedPosts || feedPosts.length === 0) {
     if (emptyEl) emptyEl.style.display = '';
     return;
   }
-  if (emptyEl) emptyEl.style.display = 'none';
 
-  const feedList = document.getElementById('feedList');
+  if (emptyEl)  emptyEl.style.display  = 'none';
+  if (loadEl)   loadEl.style.display   = 'none';
   if (!feedList) return;
-  feedPosts.forEach(post => feedList.appendChild(buildPostCard(post)));
+
+  /* Insertar tarjetas ANTES del spinner/vacío para mantener orden correcto */
+  feedPosts.forEach(post => {
+    const card = buildPostCard(post);
+    /* Insertar al principio, antes del primer elemento fijo (loading o empty) */
+    const firstFixed = feedList.querySelector('#feedLoading, #feedEmpty');
+    if (firstFixed) {
+      feedList.insertBefore(card, firstFixed);
+    } else {
+      feedList.appendChild(card);
+    }
+  });
 }
 
 /* ══ Construir tarjeta de un post ══ */
