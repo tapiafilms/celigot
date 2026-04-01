@@ -34,7 +34,7 @@ Usa el perfil del usuario para personalizar cada respuesta. Si es celíaco con s
         "Authorization": `Bearer ${session.access_token}`
       },
       body: JSON.stringify({
-        model: "claude-sonnet-4-20250514",
+        model: "claude-sonnet-4-6",
         max_tokens: 400,
         system: sys,
         messages: [{ role: "user", content: msg }]
