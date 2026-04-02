@@ -281,7 +281,7 @@ function updateLocationBanner() {
 
   } else if (userLocation === 'denied') {
     banner.className   = 'loc-banner loc-denied';
-    banner.innerHTML   = `<span>📍</span> Activa la ubicación para ver los restaurantes más cercanos`;
+    banner.innerHTML   = `<span>📍</span> <span>Activa la ubicación para ver los restaurantes más cercanos</span> <button class="loc-btn" onclick="retryLocation()">Activar →</button>`;
     banner.style.display = '';
 
   } else {
@@ -292,6 +292,12 @@ function updateLocationBanner() {
     banner.innerHTML   = `<span>📍</span> ${cityText} · Ordenados por cercanía`;
     banner.style.display = '';
   }
+}
+
+/* Reintentar ubicación (desde el botón del banner) */
+function retryLocation() {
+  userLocation = null; // resetear para que requestUserLocation no haga early-return
+  requestUserLocation();
 }
 
 /* ══ FILTROS ══ */
