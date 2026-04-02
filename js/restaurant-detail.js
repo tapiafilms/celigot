@@ -504,14 +504,14 @@ function injectRestaurantStyles() {
     .rd-banner-img {
       width:100%; border-radius:14px; display:block;
       object-fit:cover; max-height:180px;
-      border:1.5px solid var(--border);
+      border:3px solid #00000024;
       box-shadow:0 4px 16px rgba(0,0,0,0.10);
     }
     .rd-video-wrap { margin-bottom:16px; }
     .rd-video {
       width:100%; height:360px; border-radius:14px; display:block;
-      object-fit:cover; background:#000;
-      border:1.5px solid var(--border);
+      object-fit:cover; background:#b7b8b7;
+      border: 3px solid #00000024;
       box-shadow:0 4px 16px rgba(0,0,0,0.18);
     }
 
@@ -526,7 +526,7 @@ function injectRestaurantStyles() {
     .rd-promo-antes { font-size:11px; color:var(--text-hint); text-decoration:line-through; }
     .rd-promo-valido { font-size:10px; color:var(--text-hint); background:var(--bg); padding:2px 8px; border-radius:20px; }
 
-    .rd-menu-hint { font-size:12px; color:var(--text-hint); margin-bottom:12px; }
+    .rd-menu-hint { font-size:12px; color:#636e60; margin-bottom:12px; }
     .rd-cat-title { font-size:11px; font-weight:700; color:var(--green); letter-spacing:0.06em; margin:16px 0 8px; text-transform:uppercase; }
 
     .rd-plato { background:var(--surface); border:1.5px solid var(--border); border-radius:14px; padding:14px; margin-bottom:0; display:flex; flex-direction:column; gap:0; cursor:pointer; transition:border-color 0.2s, box-shadow 0.2s; }
