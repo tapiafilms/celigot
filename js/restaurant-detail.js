@@ -14,6 +14,7 @@ const RESTAURANT_DETAILS = {
     tagline: 'El primer restaurante 100% libre de gluten de Chile',
     emoji: '🍱',
     headerColor: '#2A4527',
+    headerImg: 'img/header-quimey.png',
     cert: true,
     certLabel: 'Certificado Fundación Convivir',
     rating: 4.8,
@@ -26,6 +27,7 @@ const RESTAURANT_DETAILS = {
     instagram: 'quimeysushi',
     web: 'quimeysushi.cl',
     bannerSemana: 'img/banner-quimey.png',
+    video: 'videos/video-quimey.mp4',
 
     promociones: [
       {
@@ -90,6 +92,7 @@ const RESTAURANT_DETAILS = {
     tagline: 'Hamburguesas gourmet con pan sin gluten',
     emoji: '🍔',
     headerColor: '#3D2010',
+    headerImg: 'img/header-roofburger.png',
     cert: false,
     certLabel: null,
     rating: 4.3,
@@ -102,6 +105,7 @@ const RESTAURANT_DETAILS = {
     instagram: 'roofburger',
     web: '',
     bannerSemana: 'img/banner-roofburger.png',
+    video: 'videos/video-roofburger.mp4',
 
     promociones: [],
 
@@ -142,6 +146,7 @@ const RESTAURANT_DETAILS = {
     tagline: 'Panadería y repostería 100% sin gluten en Viña del Mar',
     emoji: '🧁',
     headerColor: '#3D1F52',
+    headerImg: 'img/header-oops.png',
     cert: true,
     certLabel: 'Establecimiento 100% libre de gluten',
     rating: 4.7,
@@ -154,6 +159,7 @@ const RESTAURANT_DETAILS = {
     instagram: 'oops.sepuede',
     web: '',
     bannerSemana: 'img/banner-oops.png',
+    video: 'videos/video-oops.mp4',
 
     promociones: [
       {
@@ -209,6 +215,21 @@ function openRestaurant(id) {
   detailPage.innerHTML = buildRestaurantHTML(rest);
   injectRestaurantStyles();
 
+  /* ── Autoplay/pausa según visibilidad ── */
+  const videos = detailPage.querySelectorAll('.rd-autoplay-video');
+  if (videos.length && 'IntersectionObserver' in window) {
+    const videoObserver = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.play().catch(() => {});
+        } else {
+          entry.target.pause();
+        }
+      });
+    }, { threshold: 0.4 }); /* se activa cuando el 40% del video es visible */
+    videos.forEach(v => videoObserver.observe(v));
+  }
+
   document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
   document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
   document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
@@ -255,21 +276,12 @@ function buildRestaurantHTML(r) {
     `).join('')}
   `).join('');
 
-  const promoHTML = r.promociones.length > 0
-    ? r.promociones.map(p => `
-      <div class="rd-promo">
-        <div class="rd-promo-emoji">${p.emoji}</div>
-        <div class="rd-promo-body">
-          <div class="rd-promo-titulo">${p.titulo}</div>
-          <div class="rd-promo-desc">${p.desc}</div>
-          <div class="rd-promo-footer">
-            <span class="rd-promo-precio">${p.precio}</span>
-            ${p.precioAntes ? `<span class="rd-promo-antes">${p.precioAntes}</span>` : ''}
-            <span class="rd-promo-valido">${p.valido}</span>
-          </div>
-        </div>
-      </div>
-    `).join('')
+  const videoHTML = r.video
+    ? `<div class="rd-video-wrap">
+        <video class="rd-video rd-autoplay-video" controls playsinline loop muted preload="none">
+          <source src="${r.video}" type="video/mp4">
+        </video>
+      </div>`
     : '';
 
   /* Sección de contacto: WhatsApp o Instagram */
@@ -277,7 +289,7 @@ function buildRestaurantHTML(r) {
     ? `
       <div class="rd-section-title">💬 Contactar restaurante</div>
       <a class="rd-whatsapp-btn"
-         href="https://wa.me/${r.whatsapp}?text=Hola%2C%20te%20contacto%20desde%20CeliGO%20👋"
+         href="https://wa.me/${r.whatsapp}?text=Hola%2C%20te%20contacto%20desde%20CeliGOT%20👋"
          target="_blank">
         <svg viewBox="0 0 24 24" fill="currentColor" width="20" height="20">
           <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
@@ -305,7 +317,7 @@ function buildRestaurantHTML(r) {
     <div class="rd-container">
 
       <!-- HEADER -->
-      <div class="rd-header" style="background:${r.headerColor}">
+      <div class="rd-header" style="background-color:${r.headerColor}; ${r.headerImg ? `background-image: linear-gradient(rgba(0,0,0,0.45), rgba(0,0,0,0.55)), url('${r.headerImg}');` : ''}">
         <button class="rd-back" onclick="closeRestaurant()">← Volver</button>
         <div class="rd-header-emoji">${r.emoji}</div>
         <div class="rd-header-name">${r.name}</div>
@@ -332,7 +344,7 @@ function buildRestaurantHTML(r) {
           <img src="${r.bannerSemana}" alt="Banner promoción de la semana - ${r.name}"
                class="rd-banner-img" onerror="this.style.display='none'"/>
         </div>
-        ${promoHTML ? `<div class="rd-promos">${promoHTML}</div>` : ''}
+        ${videoHTML}
 
         <!-- MENÚ -->
         <div class="rd-section-title">🍽️ Menú celíaco</div>
@@ -462,6 +474,8 @@ function injectRestaurantStyles() {
       padding:50px 20px 28px;
       display:flex; flex-direction:column; align-items:center;
       gap:8px; text-align:center; position:relative;
+      background-size:cover; background-position:center;
+      background-repeat:no-repeat;
     }
     .rd-back {
       position:absolute; top:16px; left:16px;
@@ -492,6 +506,13 @@ function injectRestaurantStyles() {
       object-fit:cover; max-height:180px;
       border:1.5px solid var(--border);
       box-shadow:0 4px 16px rgba(0,0,0,0.10);
+    }
+    .rd-video-wrap { margin-bottom:16px; }
+    .rd-video {
+      width:100%; height:360px; border-radius:14px; display:block;
+      object-fit:cover; background:#000;
+      border:1.5px solid var(--border);
+      box-shadow:0 4px 16px rgba(0,0,0,0.18);
     }
 
     .rd-promos { display:flex; flex-direction:column; gap:10px; margin-bottom:4px; }

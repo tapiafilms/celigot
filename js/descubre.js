@@ -490,8 +490,8 @@ async function sharePost(postId) {
   const shareUrl = window.location.origin + window.location.pathname;
 
   const shareData = {
-    title: 'CeliGO — Comunidad sin gluten',
-    text:  `${autor} en CeliGO:\n\n"${texto}"\n\nDescubrí más en CeliGO 🌾`,
+    title: 'CeliGOT — Comunidad sin gluten',
+    text:  `${autor} en CeliGOT:\n\n"${texto}"\n\nDescubrí más en CeliGOT 🌾`,
     url:   shareUrl,
   };
 
@@ -501,7 +501,7 @@ async function sharePost(postId) {
       await navigator.share(shareData);
     } else {
       /* Fallback: copiar al portapapeles */
-      const textToCopy = `${autor} en CeliGO:\n\n"${texto}"\n\n${shareUrl}`;
+      const textToCopy = `${autor} en CeliGOT:\n\n"${texto}"\n\n${shareUrl}`;
       await navigator.clipboard.writeText(textToCopy);
       if (btn) {
         const original = btn.innerHTML;

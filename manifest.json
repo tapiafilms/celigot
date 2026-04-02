@@ -1,6 +1,6 @@
 {
-  "name": "CeliGO Viña — Tu guía alimentaria",
-  "short_name": "CeliGO",
+  "name": "CeliGOT Viña — Tu guía alimentaria",
+  "short_name": "CeliGOT",
   "description": "Guía alimentaria para celíacos en Viña del Mar. Escáner de etiquetas, asistente IA, restaurantes y tiendas sin gluten.",
   "start_url": "/",
   "scope": "/",

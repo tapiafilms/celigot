@@ -148,7 +148,7 @@ function showAuthModal() {
     <div class="auth-container">
 
       <div class="auth-logo">
-        <img src="img/logo-full.png" alt="CeliGO">
+        <img src="img/logo-full.png" alt="CeliGOT">
       </div>
 
       <h1 class="auth-title">BIENVENIDO/A</h1>

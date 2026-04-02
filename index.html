@@ -3,18 +3,18 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<title>CeliGO Viña — Tu guía alimentaria</title>
+<title>CeliGOT Viña — Tu guía alimentaria</title>
 
 <!-- ═══ PWA META TAGS ═══ -->
 <meta name="description" content="Guía alimentaria para celíacos en Viña del Mar. Escáner de etiquetas con IA, asistente, restaurantes y tiendas sin gluten.">
-<meta name="application-name" content="CeliGO">
+<meta name="application-name" content="CeliGOT">
 <meta name="theme-color" content="#1C2419">
 <meta name="mobile-web-app-capable" content="yes">
 
 <!-- iOS / Safari -->
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="CeliGO">
+<meta name="apple-mobile-web-app-title" content="CeliGOT">
 <link rel="apple-touch-icon" href="img/apple-touch-icon.png">
 
 <!-- Iconos estándar -->
@@ -26,7 +26,7 @@
 
 <!-- Open Graph (para compartir) -->
 <meta property="og:type" content="website">
-<meta property="og:title" content="CeliGO — Guía alimentaria sin gluten">
+<meta property="og:title" content="CeliGOT — Guía alimentaria sin gluten">
 <meta property="og:description" content="Escáner de etiquetas IA, restaurantes y tiendas sin gluten en Viña del Mar.">
 <meta property="og:image" content="img/icon-512.png">
 
@@ -59,7 +59,7 @@
 <div class="topbar">
   <div class="topbar-head">
     <div class="logo" onclick="goToHome()" style="cursor:pointer">
-      <img src="img/logo-full.png" alt="CeliGO">
+      <img src="img/logo-full.png" alt="CeliGOT">
     </div>
     <!-- Avatar de perfil — click abre el panel de perfil -->
     <button class="topbar-avatar" id="topbarAvatar" onclick="openProfilePanel()" title="Mi perfil">
@@ -100,7 +100,7 @@
   <div class="app-topbar">
     <div class="topbar">
       <div class="topbar-head">
-        <div class="logo" onclick="goToHome()" style="cursor:pointer"><img src="img/logo-full.png" alt="CeliGO"></div>
+        <div class="logo" onclick="goToHome()" style="cursor:pointer"><img src="img/logo-full.png" alt="CeliGOT"></div>
       </div>
       <div class="tabs">
         <div class="tab" onclick="switchTab('restaurantes',this)">
@@ -137,21 +137,11 @@
   <div class="home-hero">
     <div class="home-hero-glow"></div>
     <div class="home-hero-content">
-      <img src="img/logo-full.png" alt="CeliGO" class="home-logo">
+      <img src="img/logo-full.png" alt="CeliGOT" class="home-logo">
       <p class="home-greeting" id="homeGreeting">Bienvenido/a 👋</p>
       <h1 class="home-headline">Tu guía inteligente<br>para comer seguro</h1>
       <p class="home-tagline">Escanea etiquetas, consulta con IA y encuentra lugares confiables en Viña del Mar y Concón.</p>
     </div>
-  </div>
-
-  <!-- TEXTO DE INTRODUCCIÓN -->
-  <div class="home-intro">
-    <p class="home-intro-text">
-      Todo lo que necesitas para una vida sin gluten, en un solo lugar.<br><br>
-      Escanea etiquetas de productos, encuentra restaurantes confiables cerca de ti y resuelve tus dudas al instante con el asistente IA.<br><br>
-      Te muestra las tiendas sin gluten del sector y puedes explorar recomendaciones reales de otras personas de tu ciudad.<br><br>
-      Porque no estás solo: hay toda una comunidad lista para ayudarte.
-    </p>
   </div>
 
   <!-- STRIP DE ALERGIAS ACTIVAS -->
@@ -245,6 +235,16 @@
     </button>
   </div>
 
+  <!-- TEXTO DE INTRODUCCIÓN -->
+  <div class="home-intro">
+    <p class="home-intro-text">
+      Todo lo que necesitas para una vida sin gluten, en un solo lugar.<br><br>
+      Escanea etiquetas de productos, encuentra restaurantes confiables cerca de ti y resuelve tus dudas al instante con el asistente IA.<br><br>
+      Te muestra las tiendas sin gluten del sector y puedes explorar recomendaciones reales de otras personas de tu ciudad.<br><br>
+      Porque no estás solo: hay toda una comunidad lista para ayudarte.
+    </p>
+  </div>
+
   <!-- FOOTER MARCA -->
   <div class="home-footer">
     <span class="home-footer-badge">EAT SAFE · CELIACO FRIENDLY</span>
@@ -254,44 +254,8 @@
 
 <div class="page" id="page-scanner">
 
-  <!-- HERO ESCÁNER -->
-  <div class="rest-hero scanner-hero">
-    <div class="rest-hero-img">
-      <img src="img/scanner.jpg" alt="Escanea la etiqueta">
-      <div class="rest-hero-overlay"></div>
-    </div>
-
-    <div class="rest-hero-logo" onclick="goToHome()" style="cursor:pointer" title="Volver al inicio">
-      <img src="img/ce-logo.png" alt="ce">
-    </div>
-
-    <div class="rest-hero-content">
-      <div class="rest-hero-top">
-        <span class="rest-badge-destacado">ESCÁNER IA</span>
-        <div class="rest-hero-rating">
-          <span class="rest-stars-gold">★★★★★</span>
-          <span class="rest-rating-val">IA</span>
-          <div class="rest-rating-count">Análisis al instante</div>
-        </div>
-      </div>
-
-      <h1 class="rest-hero-name">Escanea la<br>etiqueta</h1>
-
-      <p class="rest-hero-desc">Foto o texto — la IA detecta gluten y tus alergias en segundos. Analiza ingredientes, nombres ocultos y contaminación cruzada.</p>
-
-      <div class="rest-hero-horario">
-        <svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
-        Disponible 24/7 · Sin conexión requerida
-      </div>
-
-      <div class="rest-hero-tags">
-        <span class="rest-hero-tag">Foto o texto</span>
-        <span class="rest-hero-tag">Detección gluten</span>
-        <span class="rest-hero-tag">Tus alergias</span>
-        <span class="rest-hero-tag">Nombres ocultos</span>
-      </div>
-    </div>
-  </div>
+  <div class="page-title">Escáner de etiquetas</div>
+  <div class="page-sub">Foto o texto — la IA detecta gluten y tus alergias en segundos. Analiza ingredientes, nombres ocultos y contaminación cruzada.</div>
 
   <!-- FORMULARIO -->
   <div class="scanner-form-wrap">
@@ -317,14 +281,6 @@
     <div class="input-card">
       <label>INGREDIENTES DEL PRODUCTO</label>
       <textarea id="ingredientsInput" placeholder="Ej: Harina de trigo, agua, sal, levadura, leche descremada, huevo..."></textarea>
-    </div>
-
-    <div class="chips">
-      <span class="chip" onclick="setEx('pan')">🍞 Pan de molde</span>
-      <span class="chip" onclick="setEx('jamon')">🥩 Jamón</span>
-      <span class="chip" onclick="setEx('avena')">🌾 Avena</span>
-      <span class="chip" onclick="setEx('salsa')">🍶 Salsa soya</span>
-      <span class="chip" onclick="setEx('galleta')">🍪 Galleta</span>
     </div>
 
     <button class="btn-primary" id="btnScan" onclick="scan()">
@@ -360,7 +316,7 @@
     <div class="ai-chat-header">
       <svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
       <div>
-        <h4>Asistente CeliGO</h4>
+        <h4>Asistente CeliGOT</h4>
         <p>Especializado en alergias y celiaquía</p>
       </div>
     </div>
@@ -376,6 +332,68 @@
   <!-- Banner publicitario asistente -->
   <div class="asistente-banner-wrap">
     <img src="img/banner-asistente.png" alt="Banner" class="asistente-banner-img">
+  </div>
+
+  <!-- Clínicas de alergias alimentarias -->
+  <div class="asistente-clinicas-title">🏥 Clínicas de alergias en la región</div>
+  <div class="asistente-clinicas-grid">
+
+    <!-- 1. Clínica Ciudad del Mar -->
+    <div class="clinica-card">
+      <div class="clinica-card-icon">🏨</div>
+      <span class="clinica-card-ciudad">Viña del Mar</span>
+      <div class="clinica-card-name">Clínica Ciudad del Mar</div>
+      <div class="clinica-card-dir">Centro de Alergias e Inmunología · 13 Norte 635</div>
+      <a class="clinica-card-wsap"
+         href="https://wa.me/56322451000?text=Hola%2C%20quiero%20agendar%20una%20consulta%20en%20el%20Centro%20de%20Alergias"
+         target="_blank">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+        WhatsApp
+      </a>
+    </div>
+
+    <!-- 2. AllerVita -->
+    <div class="clinica-card">
+      <div class="clinica-card-icon">🌿</div>
+      <span class="clinica-card-ciudad">Viña del Mar</span>
+      <div class="clinica-card-name">AllerVita</div>
+      <div class="clinica-card-dir">Centro Médico Inmunología y Alergias · @allervita</div>
+      <a class="clinica-card-wsap"
+         href="https://allervita.site.agendapro.com/cl/sucursal/345255"
+         target="_blank">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+        Agendar hora
+      </a>
+    </div>
+
+    <!-- 3. Kinelite Concón -->
+    <div class="clinica-card">
+      <div class="clinica-card-icon">🔬</div>
+      <span class="clinica-card-ciudad">Concón</span>
+      <div class="clinica-card-name">Kinelite</div>
+      <div class="clinica-card-dir">Alergias y Prick Test · Edmundo Eluchans 3047 of.103</div>
+      <a class="clinica-card-wsap"
+         href="https://kinelite.cl/prick-test/"
+         target="_blank">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+        Agendar hora
+      </a>
+    </div>
+
+    <!-- 4. InmunoMédica Valparaíso -->
+    <div class="clinica-card">
+      <div class="clinica-card-icon">💊</div>
+      <span class="clinica-card-ciudad">Valparaíso</span>
+      <div class="clinica-card-name">InmunoMédica</div>
+      <div class="clinica-card-dir">Especialistas en Alergias e Inmunología · Región de Valparaíso</div>
+      <a class="clinica-card-wsap"
+         href="https://inmunomedica.cl/case-study/vina-del-mar/"
+         target="_blank">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+        Ver más
+      </a>
+    </div>
+
   </div>
 </div>
 
@@ -890,7 +908,7 @@ function showInstallBanner() {
     <div style="display:flex;align-items:center;gap:12px;flex:1;">
       <img src="img/icon-192.png" style="width:36px;height:36px;border-radius:8px;">
       <div>
-        <div style="font-weight:700;font-size:13px;">Instalar CeliGO</div>
+        <div style="font-weight:700;font-size:13px;">Instalar CeliGOT</div>
         <div style="font-size:11px;color:rgba(255,255,255,0.6);">Acceso rápido desde tu pantalla de inicio</div>
       </div>
     </div>
