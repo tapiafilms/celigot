@@ -1705,3 +1705,83 @@ body > .topbar { display: none; }
   transition: color 0.15s, background 0.15s;
 }
 .feed-delete-btn:hover { color: var(--red); background: var(--red-light); }
+
+/* ══════════════════════════════════════════════════════
+   GEOLOCALIZACIÓN — Banner de ubicación y badges
+   ══════════════════════════════════════════════════════ */
+
+/* ── Banner de ubicación ── */
+.loc-banner {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  font-weight: 600;
+  padding: 10px 14px;
+  border-radius: 12px;
+  margin: 10px 0 4px;
+  transition: all 0.3s ease;
+}
+
+.loc-banner.loc-pending {
+  background: rgba(78, 107, 74, 0.08);
+  color: var(--text-muted);
+  border: 1px solid rgba(78, 107, 74, 0.15);
+}
+
+/* Punto pulsante para "detectando..." */
+.loc-dot {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--green);
+  animation: locPulse 1.4s ease-in-out infinite;
+  flex-shrink: 0;
+}
+@keyframes locPulse {
+  0%, 100% { opacity: 1; transform: scale(1);   }
+  50%       { opacity: 0.4; transform: scale(0.8); }
+}
+
+.loc-banner.loc-active {
+  background: rgba(78, 107, 74, 0.10);
+  color: var(--green-dark, #2E5E2A);
+  border: 1px solid rgba(78, 107, 74, 0.22);
+}
+.loc-banner.loc-active strong {
+  color: var(--green-dark, #2E5E2A);
+}
+
+.loc-banner.loc-denied {
+  background: rgba(232, 168, 32, 0.08);
+  color: #8B6914;
+  border: 1px solid rgba(232, 168, 32, 0.20);
+}
+
+/* ── Badge de distancia en tarjetas destacadas ── */
+.fc-dist {
+  font-size: 10px;
+  font-weight: 700;
+  color: rgba(255, 255, 255, 0.65);
+  background: rgba(255, 255, 255, 0.10);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 100px;
+  padding: 3px 9px;
+  letter-spacing: 0.02em;
+}
+
+/* ── Badge de distancia en tarjetas regulares ── */
+.place-dist {
+  display: inline-block;
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--green);
+  background: rgba(78, 107, 74, 0.10);
+  border: 1px solid rgba(78, 107, 74, 0.20);
+  border-radius: 100px;
+  padding: 2px 8px;
+  margin-left: 6px;
+  vertical-align: middle;
+  letter-spacing: 0.02em;
+}

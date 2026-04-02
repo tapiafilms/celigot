@@ -40,6 +40,13 @@ function switchTab(name, el, fromNav = false) {
     initDescubreFeed();
   }
 
+  /* Al entrar a RESTAURANTES: actualizar banner de ubicación */
+  if (name === 'restaurantes') {
+    if (typeof updateLocationBanner === 'function') updateLocationBanner();
+    /* Si la ubicación aún no se solicitó, pedirla ahora */
+    if (typeof requestUserLocation === 'function') requestUserLocation();
+  }
+
   const appPages = document.querySelector('.app-pages');
   if (appPages && window.innerWidth >= 900) {
     appPages.scrollTop = 0;
