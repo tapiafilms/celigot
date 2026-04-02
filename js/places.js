@@ -130,7 +130,7 @@ const stores = [
     featured: true,
     name: "All Free",
     type: "PRODUCTOS / DELIVERY 100% SIN GLUTEN",
-    icon: "📦",
+    icon: "<img src="img/logo-allfree.png">,
     cat: "especializada",
     rating: 4.8,
     reviews: 180,
