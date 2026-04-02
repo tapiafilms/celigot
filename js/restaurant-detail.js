@@ -25,7 +25,7 @@ const RESTAURANT_DETAILS = {
     descripcion: 'Fundado en 2015 por Elizabeth, celíaca, Quimey es un oasis 100% libre de gluten y contaminación cruzada. Sushi, pizzas, pastas, hamburguesas, empanadas y pastelería. También opciones veganas y vegetarianas. Tienen su propia salsa de soya sin gluten.',
     instagram: 'quimeysushi',
     web: 'quimeysushi.cl',
-    bannerSemana: 'img/banner-quimey.svg',
+    bannerSemana: 'img/banner-quimey.png',
 
     promociones: [
       {
@@ -101,7 +101,7 @@ const RESTAURANT_DETAILS = {
     descripcion: 'Hamburguesas gourmet en Viña del Mar con opción de pan sin gluten. Ambiente casual y relajado. Siempre avisar al pedir para que preparen tu pedido de forma especial y eviten la contaminación cruzada.',
     instagram: 'roofburger',
     web: '',
-    bannerSemana: 'img/banner-roofburger.svg',
+    bannerSemana: 'img/banner-roofburger.png',
 
     promociones: [],
 
@@ -153,7 +153,7 @@ const RESTAURANT_DETAILS = {
     descripcion: 'Panadería artesanal 100% sin gluten y sin contaminación cruzada. Fundada por celíacos, para celíacos. Pizzas, galletas, cupcakes, brownies, marraquetas, hallullas y alfajores. Todo elaborado en un ambiente libre de gluten.',
     instagram: 'oops.sepuede',
     web: '',
-    bannerSemana: 'img/banner-oops.svg',
+    bannerSemana: 'img/banner-oops.png',
 
     promociones: [
       {

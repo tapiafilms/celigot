@@ -39,6 +39,16 @@
 </head>
 <body>
 
+<!-- OVERLAY: rotar a vertical -->
+<div id="rotate-overlay">
+  <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+    <rect x="2" y="5" width="14" height="20" rx="2"/>
+    <path d="M19 3l3 3-3 3M22 6H16"/>
+  </svg>
+  <p>Rotá tu dispositivo</p>
+  <span>Esta app está optimizada para modo vertical</span>
+</div>
+
 <!-- AVATAR FIJO — esquina superior izquierda, siempre visible -->
 <button class="profile-avatar-fixed" id="profileAvatarFixed" onclick="goToProfile()" title="Mi perfil">
   <img id="fixedAvatarImg" alt="Foto de perfil" style="display:none;">
@@ -251,7 +261,7 @@
       <div class="rest-hero-overlay"></div>
     </div>
 
-    <div class="rest-hero-logo">
+    <div class="rest-hero-logo" onclick="goToHome()" style="cursor:pointer" title="Volver al inicio">
       <img src="img/ce-logo.png" alt="ce">
     </div>
 
@@ -362,6 +372,11 @@
       <button class="btn-send" id="btnSend" onclick="sendChat()">Enviar</button>
     </div>
   </div>
+
+  <!-- Banner publicitario asistente -->
+  <div class="asistente-banner-wrap">
+    <img src="img/banner-asistente.png" alt="Banner" class="asistente-banner-img">
+  </div>
 </div>
 
 <!-- ══ RESTAURANTES ══ -->
@@ -374,7 +389,7 @@
       <div class="rest-hero-overlay"></div>
     </div>
 
-    <div class="rest-hero-logo">
+    <div class="rest-hero-logo" onclick="goToHome()" style="cursor:pointer" title="Volver al inicio">
       <img src="img/ce-logo.png" alt="ce">
     </div>
 
@@ -436,7 +451,7 @@
       <div class="rest-hero-overlay"></div>
     </div>
 
-    <div class="rest-hero-logo">
+    <div class="rest-hero-logo" onclick="goToHome()" style="cursor:pointer" title="Volver al inicio">
       <img src="img/ce-logo.png" alt="ce">
     </div>
 

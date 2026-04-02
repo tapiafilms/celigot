@@ -559,6 +559,10 @@ body > .topbar { display: none; }
 .btn-send { background:var(--green); color:white; border:none; border-radius:var(--r-xs); padding:10px 16px; font-size:13px; font-weight:600; cursor:pointer; font-family:'Plus Jakarta Sans', sans-serif; white-space:nowrap; }
 .btn-send:disabled { background:#9AB59A; cursor:not-allowed; }
 
+/* ── BANNER ASISTENTE ── */
+.asistente-banner-wrap { margin: 16px 0 4px; border-radius: var(--r-sm, 12px); overflow: hidden; }
+.asistente-banner-img { width: 100%; height: auto; display: block; border-radius: var(--r-sm, 12px); }
+
 /* ── BOTTOM NAV ── */
 .bottom-nav {
   position: fixed;
@@ -2095,4 +2099,57 @@ body > .topbar { display: none; }
 #page-home {
   background: #111a10;
   min-height: 100vh;
+}
+
+/* ── Bloqueo de orientación horizontal (fallback CSS para iOS/Safari) ── */
+@media (orientation: landscape) and (max-height: 600px) {
+  #rotate-overlay {
+    display: flex !important;
+  }
+}
+
+#rotate-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  z-index: 99999;
+  background: #1C2419;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 20px;
+  padding: 32px;
+}
+
+#rotate-overlay svg {
+  width: 64px;
+  height: 64px;
+  fill: none;
+  stroke: #7CBF6E;
+  stroke-width: 1.5;
+  animation: rotate-hint 2s ease-in-out infinite;
+}
+
+@keyframes rotate-hint {
+  0%   { transform: rotate(0deg);   }
+  40%  { transform: rotate(-90deg); }
+  60%  { transform: rotate(-90deg); }
+  100% { transform: rotate(0deg);   }
+}
+
+#rotate-overlay p {
+  color: #e8f5e9;
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: 16px;
+  font-weight: 600;
+  text-align: center;
+  margin: 0;
+}
+
+#rotate-overlay span {
+  color: #7CBF6E;
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: 13px;
+  text-align: center;
+  opacity: 0.7;
 }

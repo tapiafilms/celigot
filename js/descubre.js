@@ -157,6 +157,9 @@ async function publishPost() {
     if (textEl) { textEl.value = ''; textEl.style.height = 'auto'; }
     removeFeedImage();
 
+    /* ── Limpiar posts antiguos si se supera el límite ── */
+    pruneOldPosts();   /* fire-and-forget: no bloquea la UI */
+
     /* ── Agregar el nuevo post al feed local sin recargar ── */
     /* Solo usar currentProfile (Supabase) — nunca localStorage (puede ser de otro usuario) */
     const profile = (typeof currentProfile !== 'undefined' && currentProfile) ? currentProfile : null;
@@ -428,6 +431,47 @@ async function deletePost(postId) {
   } catch (err) {
     console.error('[Descubre] Error eliminando post:', err);
     alert('No se pudo eliminar. Intenta de nuevo.');
+  }
+}
+
+/* ══ Limitar el feed a MAX_POSTS entradas ══
+   Se llama después de cada publicación nueva.
+   Elimina los posts más antiguos (y sus fotos) si se supera el límite. */
+const MAX_FEED_POSTS = 15;
+
+async function pruneOldPosts() {
+  try {
+    /* Obtener TODOS los posts ordenados del más nuevo al más viejo */
+    const { data: allPosts, error } = await sb
+      .from('posts')
+      .select('id, image_url')
+      .order('created_at', { ascending: false });
+
+    if (error || !allPosts) return;
+
+    /* Si no supera el límite, nada que hacer */
+    if (allPosts.length <= MAX_FEED_POSTS) return;
+
+    /* Los posts a eliminar son los que quedan después del límite (los más viejos) */
+    const toDelete = allPosts.slice(MAX_FEED_POSTS);
+
+    for (const post of toDelete) {
+      /* 1. Borrar imagen del storage si existe */
+      if (post.image_url) {
+        try {
+          const url      = new URL(post.image_url);
+          const segments = url.pathname.split('/posts/');
+          if (segments[1]) await sb.storage.from('posts').remove([segments[1]]);
+        } catch (e) {}
+      }
+
+      /* 2. Borrar el post (los likes se eliminan en cascada por la FK en BD) */
+      await sb.from('posts').delete().eq('id', post.id);
+    }
+
+    console.log(`[Descubre] pruneOldPosts: eliminados ${toDelete.length} post(s) antiguos.`);
+  } catch (err) {
+    console.warn('[Descubre] pruneOldPosts error (no crítico):', err);
   }
 }
 

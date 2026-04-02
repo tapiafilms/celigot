@@ -411,7 +411,7 @@ async function handleProfilePhoto(input) {
   } else {
     /* ── Sin sesión: comprimir y guardar como base64 ── */
     try {
-      const blob   = await compressImage(file, 420, 0.75);
+      const blob   = await compressImage(file, 800, 0.92);
       const reader = new FileReader();
       reader.onload = (e) => {
         const b64 = e.target.result;

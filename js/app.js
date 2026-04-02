@@ -449,4 +449,18 @@ document.addEventListener('DOMContentLoaded', () => {
   updateProfileHero();
   renderDescubrePage();
   updateTopbarAvatar();
+  lockPortrait();
 });
+
+/* ══ Bloqueo de orientación vertical ══
+   1. Screen Orientation API  → Chrome/Android (PWA y navegador)
+   2. Overlay CSS             → fallback para iOS/Safari              */
+function lockPortrait() {
+  /* Intento con la API (requiere que la página esté en primer plano) */
+  if (screen?.orientation?.lock) {
+    screen.orientation.lock('portrait').catch(() => {
+      /* Silencioso: el navegador puede rechazarlo fuera de PWA instalada */
+    });
+  }
+  /* El overlay CSS ya se activa automáticamente por @media (orientation: landscape) */
+}

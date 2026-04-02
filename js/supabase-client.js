@@ -58,7 +58,7 @@ async function sbUpsertProfile(userId, payload) {
 /* ══ SUBIR AVATAR (comprimido) ═══════════════════════ */
 async function sbUploadAvatar(userId, file) {
   try {
-    const blob = await compressImage(file, 420, 0.75);
+    const blob = await compressImage(file, 800, 0.92);
     const path = `${userId}/avatar.jpg`;
 
     const { error: upErr } = await sb.storage
