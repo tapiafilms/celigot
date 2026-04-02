@@ -1688,6 +1688,37 @@ body > .topbar { display: none; }
 .feed-like-btn.liked { color: #e05555; }
 .feed-like-btn.liked svg { stroke: #e05555; fill: #e05555; }
 
+.feed-share-btn {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-muted);
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 6px 10px;
+  border-radius: 100px;
+  transition: all 0.18s;
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  margin-left: auto;
+}
+.feed-share-btn svg {
+  width: 17px;
+  height: 17px;
+  stroke: var(--text-muted);
+  fill: none;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  transition: stroke 0.18s;
+}
+.feed-share-btn:hover { color: var(--green); background: rgba(124,191,110,0.08); }
+.feed-share-btn:hover svg { stroke: var(--green); }
+.feed-share-btn.shared { color: var(--green); }
+.feed-share-btn.shared svg { stroke: var(--green); }
+
 .feed-loading, .feed-empty {
   text-align: center;
   padding: 40px 20px;

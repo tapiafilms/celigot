@@ -360,6 +360,10 @@ function buildPostCard(post) {
         <span id="like-count-${post.id}">${likes > 0 ? likes : ''}</span>
         Me gusta
       </button>
+      <button class="feed-share-btn" id="share-btn-${post.id}" onclick="sharePost('${post.id}')">
+        <svg viewBox="0 0 24 24"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
+        Compartir
+      </button>
     </div>
   `;
   return card;
@@ -472,6 +476,43 @@ async function pruneOldPosts() {
     console.log(`[Descubre] pruneOldPosts: eliminados ${toDelete.length} post(s) antiguos.`);
   } catch (err) {
     console.warn('[Descubre] pruneOldPosts error (no crítico):', err);
+  }
+}
+
+/* ══ Compartir post ══ */
+async function sharePost(postId) {
+  const post = feedPosts.find(p => p.id === postId);
+  if (!post) return;
+
+  const btn      = document.getElementById(`share-btn-${postId}`);
+  const autor    = post._nombre || 'Un usuario';
+  const texto    = post.content || '';
+  const shareUrl = window.location.origin + window.location.pathname;
+
+  const shareData = {
+    title: 'CeliGO — Comunidad sin gluten',
+    text:  `${autor} en CeliGO:\n\n"${texto}"\n\nDescubrí más en CeliGO 🌾`,
+    url:   shareUrl,
+  };
+
+  try {
+    if (navigator.share && navigator.canShare && navigator.canShare(shareData)) {
+      /* Web Share API — abre el menú nativo del celular */
+      await navigator.share(shareData);
+    } else {
+      /* Fallback: copiar al portapapeles */
+      const textToCopy = `${autor} en CeliGO:\n\n"${texto}"\n\n${shareUrl}`;
+      await navigator.clipboard.writeText(textToCopy);
+      if (btn) {
+        const original = btn.innerHTML;
+        btn.innerHTML  = `<svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg> ¡Copiado!`;
+        btn.classList.add('shared');
+        setTimeout(() => { btn.innerHTML = original; btn.classList.remove('shared'); }, 2000);
+      }
+    }
+  } catch (err) {
+    /* El usuario canceló el share — no es un error real */
+    if (err.name !== 'AbortError') console.warn('[Descubre] sharePost:', err);
   }
 }
 
