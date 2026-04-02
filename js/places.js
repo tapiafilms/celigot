@@ -128,16 +128,16 @@ const stores = [
   {
     id: 'quimey-delivery',
     featured: true,
-    name: "Quimey Delivery",
-    type: "DELIVERY 100% SIN GLUTEN",
+    name: "All Free",
+    type: "PRODUCTOS / DELIVERY 100% SIN GLUTEN",
     icon: "📦",
     cat: "especializada",
     rating: 4.8,
     reviews: 180,
-    desc: "Delivery de Quimey Fusion & Gluten Free con toda la carta disponible. Sushi, pizzas, pastas, hamburguesas y pastelería. 100% sin gluten, sin contaminación cruzada.",
+    desc: "En ALL FREE, más que vender productos, buscamos facilitar la vida de las familias, ofreciendo un espacio donde encontrar todo lo necesario en un solo lugar.",
     tags: ["100% Sin gluten", "Delivery", "Sushi", "Pastelería", "Vegano"],
-    address: "Pedidos: quimeysushi.cl",
-    tel: "+56 9 3420 0177"
+    address: "Pedidos: allfree.cl",
+    tel: "(+56) 9 8230 7039"
   },
   {
     id: 'celina-online',
