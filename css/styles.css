@@ -191,6 +191,10 @@ body > .topbar { display: none; }
   font-weight:300;
   margin-bottom:20px;
   line-height:1.5;
+  padding: 0 16px;
+}
+#page-scanner .page-title{
+  padding: 0 16px;
 }
 
 /* ── HERO BANNER ── */
