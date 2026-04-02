@@ -98,10 +98,15 @@ function switchTab(name, el, fromNav = false) {
     initDescubreFeed();
   }
 
-  /* Al entrar a RESTAURANTES: actualizar banner de ubicación */
-  if (name === 'restaurantes') {
+  /* Al entrar a RESTAURANTES o TIENDAS: pedir/actualizar ubicación */
+  if (name === 'restaurantes' || name === 'tiendas') {
     if (typeof updateLocationBanner === 'function') updateLocationBanner();
-    /* Si la ubicación aún no se solicitó, pedirla ahora */
+    if (typeof requestUserLocation === 'function') requestUserLocation();
+  }
+
+  /* Al entrar a ASISTENTE: renderizar clínicas según ubicación actual */
+  if (name === 'asistente') {
+    if (typeof renderClinicas === 'function') renderClinicas();
     if (typeof requestUserLocation === 'function') requestUserLocation();
   }
 
@@ -437,6 +442,35 @@ function updateTopbarAvatar() {
   }
 }
 
+/* ══ INSTALAR APP — detectar plataforma y mostrar pasos ══ */
+function initInstallCard() {
+  const card = document.getElementById('installAppCard');
+  if (!card) return;
+
+  const ua = navigator.userAgent || '';
+  const isIOS     = /iphone|ipad|ipod/i.test(ua);
+  const isAndroid = /android/i.test(ua);
+
+  // ¿Ya está corriendo como PWA instalada?
+  const isStandalone =
+    window.matchMedia('(display-mode: standalone)').matches ||
+    window.navigator.standalone === true;
+
+  if (isStandalone) {
+    document.getElementById('installAlreadyInstalled').style.display = 'block';
+    return;
+  }
+
+  if (isIOS) {
+    document.getElementById('installStepsIOS').style.display = 'flex';
+  } else if (isAndroid) {
+    document.getElementById('installStepsAndroid').style.display = 'flex';
+  } else {
+    // Desktop o navegador no reconocido
+    card.style.display = 'none'; // Ocultar en desktop
+  }
+}
+
 /* ══ INIT ══ */
 document.addEventListener('DOMContentLoaded', () => {
   injectProfileStyles();
@@ -450,6 +484,7 @@ document.addEventListener('DOMContentLoaded', () => {
   renderDescubrePage();
   updateTopbarAvatar();
   lockPortrait();
+  initInstallCard();
 });
 
 /* ══ Bloqueo de orientación vertical ══

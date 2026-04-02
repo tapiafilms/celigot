@@ -6,56 +6,73 @@
 const STORE_DETAILS = {
 
   /* ────────────────────────────────────
-     QUIMEY DELIVERY
+     ALL FREE
   ──────────────────────────────────── */
-  'quimey-delivery': {
-    id: 'quimey-delivery',
-    name: 'Quimey Delivery',
-    tagline: 'Toda la carta de Quimey en tu casa · 100% sin gluten',
-    emoji: '📦',
-    headerColor: '#2A4527',
+  'all-free': {
+    id: 'all-free',
+    name: 'All Free',
+    tagline: 'Productos naturales para todas las intolerancias · Despacho a todo Chile',
+    emoji: '🌿',
+    headerColor: '#1A3A2A',
     cert: true,
-    certLabel: '100% Libre de gluten · Sin contaminación cruzada',
-    rating: 4.8,
-    reviews: 180,
-    address: 'Pedidos en quimeysushi.cl',
-    tel: '+56934200177',
-    whatsapp: '56934200177',
-    horario: 'Lun–Jue 12:00–21:00 · Vie 12:00–23:00 · Sáb 12:00–21:00',
-    descripcion: 'Delivery oficial de Quimey Fusion & Gluten Free. Toda la carta disponible a domicilio en Viña del Mar y alrededores. Misma calidad, mismas garantías: 100% libre de gluten y contaminación cruzada.',
-    instagram: 'quimeysushi',
-    bannerSemana: 'img/banner-quimey-delivery.svg',
+    certLabel: 'Sin gluten · Sin lactosa · Vegano · Keto · Sin azúcar',
+    rating: 4.7,
+    reviews: 312,
+    address: 'Apoquindo 7474, Las Condes, Santiago',
+    tel: '+56982307039',
+    whatsapp: '56982307039',
+    horario: 'Lun–Jue 08:30–18:30 · Vie 08:30–17:00 · Sáb–Dom 10:00–17:00',
+    descripcion: 'Tienda especializada en productos naturales para todas las alergias e intolerancias alimentarias. Encuentra sin gluten, sin lactosa, vegano, keto, sin azúcar, FODMAP y mucho más. Despacho express en RM y envío a todo Chile. Envío gratis en compras sobre $40.000.',
+    instagram: 'allfreechile',
+    web: 'allfree.cl',
 
     productos: [
       {
-        categoria: '🍣 Sushi & Rolls',
+        categoria: '🌾 Harinas y Pastas',
         items: [
-          { id: 'qd1', nombre: 'Roll California Quimey', desc: 'Arroz de sushi, camarón tempura, palta, pepino, queso crema. Salsa de soya sin gluten incluida.', precio: '$8.500', etiquetas: ['Sin gluten', 'Sin CC'], alergenos: ['mariscos', 'leche'] },
-          { id: 'qd2', nombre: 'Gyoza de camarón', desc: 'Masa de arroz rellena de camarón y verduras. Salsa ponzu sin gluten. 6 unidades.', precio: '$7.200', etiquetas: ['Sin gluten', 'Sin lactosa'], alergenos: ['mariscos'] },
-          { id: 'qd3', nombre: 'Ceviche Quimey', desc: 'Reineta marinada en limón, cilantro, cebolla morada y ají verde. Sin salsas con gluten.', precio: '$9.800', etiquetas: ['Sin gluten', 'Sin lactosa', 'Sin CC'], alergenos: ['mariscos'] },
-          { id: 'qd4', nombre: 'Combo Sushi 36 piezas', desc: 'Selección de rolls variados. Todo sin gluten. Incluye salsa de soya, jengibre y wasabi.', precio: '$24.900', etiquetas: ['Sin gluten', 'Sin CC'], alergenos: ['mariscos', 'leche'] },
+          { id: 'af1', nombre: 'Harina de arroz integral', desc: 'Harina fina de arroz integral 100% sin gluten. Ideal para repostería, rebozados y salsas. 500g.', precio: '$3.490', etiquetas: ['Sin gluten', 'Sin lactosa', 'Vegano'], alergenos: [] },
+          { id: 'af2', nombre: 'Harina de almendra', desc: 'Harina de almendra blanqueada, apta para dieta keto y paleo. Sin gluten, alta en proteína. 400g.', precio: '$5.990', etiquetas: ['Sin gluten', 'Keto', 'Paleo', 'Sin lactosa'], alergenos: ['frutos secos'] },
+          { id: 'af3', nombre: 'Pasta de arroz y quinoa', desc: 'Espirales de arroz y quinoa certificados sin gluten. Textura firme al dente. 250g.', precio: '$2.990', etiquetas: ['Sin gluten', 'Sin lactosa', 'Vegano'], alergenos: [] },
+          { id: 'af4', nombre: 'Mezcla de pan sin gluten Schär', desc: 'Mix para preparar pan casero sin gluten. Resultado esponjoso. 500g.', precio: '$4.490', etiquetas: ['Sin gluten', 'Sin CC'], alergenos: ['huevo'] },
         ]
       },
       {
-        categoria: '🍔 Hamburguesas',
+        categoria: '🥣 Cereales y Desayuno',
         items: [
-          { id: 'qd5', nombre: 'Hamburguesa Triple Quimey', desc: 'Pan artesanal sin gluten, 3 medallones Angus, queso, lechuga, tomate, cebolla caramelizada y salsa especial.', precio: '$12.500', etiquetas: ['Sin gluten'], alergenos: ['leche', 'huevo'] },
-          { id: 'qd6', nombre: 'Burger Vegana', desc: 'Pan sin gluten, medallón de lentejas y quinoa, palta, tomate, lechuga y mayonesa vegana.', precio: '$10.900', etiquetas: ['Sin gluten', 'Vegano', 'Sin lactosa'], alergenos: [] },
+          { id: 'af5', nombre: 'Granola sin gluten y sin azúcar', desc: 'Mezcla de avena certificada sin gluten, semillas, coco y fruta deshidratada. Sin azúcar añadida. 300g.', precio: '$4.990', etiquetas: ['Sin gluten', 'Sin azúcar', 'Vegano'], alergenos: ['frutos secos'] },
+          { id: 'af6', nombre: 'Copos de avena certificados SG', desc: 'Avena pura cultivada y procesada en entorno libre de gluten. Certificada por FACE. 500g.', precio: '$3.790', etiquetas: ['Sin gluten', 'Vegano'], alergenos: [] },
+          { id: 'af7', nombre: 'Muesli de arroz inflado y frutos', desc: 'Arroz inflado, coco, arándanos deshidratados y semillas. Sin gluten, sin azúcar. 250g.', precio: '$3.490', etiquetas: ['Sin gluten', 'Sin azúcar', 'Vegano'], alergenos: ['frutos secos'] },
         ]
       },
       {
-        categoria: '🍕 Pizzas',
+        categoria: '🥛 Bebidas Vegetales',
         items: [
-          { id: 'qd7', nombre: 'Pizza Margherita (delivery)', desc: 'Base sin gluten, salsa de tomate artesanal, mozzarella, albahaca fresca. Llega en caja especial para mantener la textura.', precio: '$9.500', etiquetas: ['Sin gluten', 'Sin CC'], alergenos: ['leche'] },
-          { id: 'qd8', nombre: 'Pizza Fumate (delivery)', desc: 'Base sin gluten, jamón sin nitritos, champiñones, aceitunas negras y orégano.', precio: '$11.200', etiquetas: ['Sin gluten', 'Sin CC'], alergenos: ['leche'] },
+          { id: 'af8', nombre: 'Leche de avena sin gluten', desc: 'Bebida vegetal de avena certificada sin gluten. Textura cremosa, ideal para café. 1L.', precio: '$2.490', etiquetas: ['Sin gluten', 'Sin lactosa', 'Vegano'], alergenos: [] },
+          { id: 'af9', nombre: 'Leche de almendra sin azúcar', desc: 'Bebida de almendra natural, sin azúcar añadida, baja en calorías. Apta keto. 1L.', precio: '$2.790', etiquetas: ['Sin gluten', 'Sin lactosa', 'Keto', 'Vegano'], alergenos: ['frutos secos'] },
+          { id: 'af10', nombre: 'Leche de coco para cocinar', desc: 'Leche de coco full fat para preparaciones dulces y saladas. Sin aditivos. 400ml.', precio: '$2.190', etiquetas: ['Sin gluten', 'Sin lactosa', 'Vegano', 'Keto'], alergenos: [] },
         ]
       },
       {
-        categoria: '🧁 Pastelería para llevar',
+        categoria: '🍫 Dulces y Chocolates',
         items: [
-          { id: 'qd9', nombre: 'Torta de hojarasca con manjar', desc: 'Capas de hojarasca sin gluten con manjar casero. Porción o torta completa disponible.', precio: 'Desde $4.500', etiquetas: ['Sin gluten'], alergenos: ['leche', 'huevo'] },
-          { id: 'qd10', nombre: 'Brownie vegano', desc: 'Brownie de chocolate negro sin gluten, sin lácteos y sin huevo. Servido con helado de coco (si aplica).', precio: '$3.800', etiquetas: ['Sin gluten', 'Vegano', 'Sin lactosa'], alergenos: [] },
-          { id: 'qd11', nombre: 'Caja de pasteles surtidos', desc: 'Selección de 6 postres sin gluten de la pastelería de Quimey. Ideal para regalo.', precio: '$18.000', etiquetas: ['Sin gluten', 'Sin CC'], alergenos: ['leche', 'huevo'] },
+          { id: 'af11', nombre: 'Chocolate negro 85% sin azúcar', desc: 'Chocolate amargo con stevia. Sin gluten, sin azúcar, apto para diabéticos y dieta keto. 80g.', precio: '$3.290', etiquetas: ['Sin gluten', 'Sin azúcar', 'Keto', 'Vegano'], alergenos: [] },
+          { id: 'af12', nombre: 'Galletas de arroz con chocolate', desc: 'Galletas de arroz bañadas en chocolate negro sin gluten y sin lactosa. 100g.', precio: '$2.890', etiquetas: ['Sin gluten', 'Sin lactosa', 'Vegano'], alergenos: [] },
+          { id: 'af13', nombre: 'Barrita de dátil y almendra', desc: 'Barra energética natural de dátiles, almendras y coco. Sin gluten, sin azúcar añadida, sin aditivos.', precio: '$1.990', etiquetas: ['Sin gluten', 'Sin azúcar', 'Vegano', 'Paleo'], alergenos: ['frutos secos'] },
+        ]
+      },
+      {
+        categoria: '🧂 Aceites y Aderezos',
+        items: [
+          { id: 'af14', nombre: 'Salsa de soya sin gluten Tamari', desc: 'Tamari japonés fermentado sin trigo. Apto celíacos. Certificado sin gluten. 250ml.', precio: '$3.990', etiquetas: ['Sin gluten', 'Vegano', 'Sin CC'], alergenos: ['soya'] },
+          { id: 'af15', nombre: 'Mayonesa vegana sin gluten', desc: 'Mayonesa a base de aceite de girasol y aquafaba. Sin huevo, sin gluten, sin lactosa.', precio: '$3.490', etiquetas: ['Sin gluten', 'Vegano', 'Sin lactosa'], alergenos: [] },
+          { id: 'af16', nombre: 'Vinagre de manzana orgánico', desc: 'Vinagre de sidra de manzana orgánico con la madre. Sin gluten, FODMAP friendly. 500ml.', precio: '$4.290', etiquetas: ['Sin gluten', 'Orgánico', 'FODMAP', 'Vegano'], alergenos: [] },
+        ]
+      },
+      {
+        categoria: '🌿 Suplementos y Salud',
+        items: [
+          { id: 'af17', nombre: 'Proteína vegana de guisante', desc: 'Proteína de guisante aislada, sin gluten, sin lactosa, sin soya. 25g de proteína por porción. 500g.', precio: '$18.990', etiquetas: ['Sin gluten', 'Sin lactosa', 'Vegano'], alergenos: [] },
+          { id: 'af18', nombre: 'Probióticos sin gluten', desc: 'Cápsulas de probióticos multicepa sin gluten, sin lactosa. Apoya la salud intestinal. 30 cápsulas.', precio: '$12.990', etiquetas: ['Sin gluten', 'Sin lactosa', 'Vegano'], alergenos: [] },
         ]
       },
     ]

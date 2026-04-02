@@ -489,6 +489,34 @@ body > .topbar { display: none; }
 .empty-state { text-align:center; padding:40px 20px; color:var(--text-hint); }
 .empty-state p { font-size:14px; margin-top:8px; }
 
+/* ── INSTALL APP CARD ── */
+.install-app-card { border-color: var(--primary-light, #d4f0e0); background: linear-gradient(135deg, #f0faf5 0%, var(--surface) 100%); }
+.install-app-header { display:flex; align-items:center; gap:12px; margin-bottom:14px; }
+.install-app-header h3 { font-family:'Funnel Display', sans-serif; font-weight:700; font-size:17px; margin-bottom:2px; }
+.install-app-header p { font-size:13px; color:var(--text-muted); margin:0; }
+.install-steps { display:flex; flex-direction:column; gap:10px; }
+.install-step {
+  display:flex;
+  align-items:flex-start;
+  gap:10px;
+  font-size:14px;
+  line-height:1.45;
+}
+.install-step-num {
+  flex-shrink:0;
+  width:24px;
+  height:24px;
+  border-radius:50%;
+  background:var(--primary);
+  color:#fff;
+  font-size:12px;
+  font-weight:700;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  margin-top:1px;
+}
+
 /* ── ALLERGY PROFILE ── */
 .profile-card {
   background:var(--surface);
@@ -642,6 +670,17 @@ body > .topbar { display: none; }
 }
 .clinica-card-wsap:hover { background: rgba(37,211,102,0.22); }
 .clinica-card-wsap svg { flex-shrink: 0; }
+
+.clinicas-otras-label {
+  grid-column: 1 / -1;
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--text-hint);
+  letter-spacing: 0.10em;
+  text-transform: uppercase;
+  margin: 8px 0 4px;
+  opacity: 0.6;
+}
 
 /* ── BOTTOM NAV ── */
 .bottom-nav {
@@ -1964,7 +2003,7 @@ body > .topbar { display: none; }
 }
 
 .home-logo {
-  height: 52px;
+  height: 78px;
   object-fit: contain;
   margin-bottom: 20px;
   filter: drop-shadow(0 0 12px rgba(100,200,80,0.3));

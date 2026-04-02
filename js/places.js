@@ -10,6 +10,7 @@ const restaurants = [
     name: "Quimey Fusion & Gluten Free",
     type: "RESTAURANTE · DELIVERY · 100% SIN GLUTEN",
     icon: "🍱",
+    img: "img/fc-quimey.png",
     city: "viña",
     lat: -33.0354, lng: -71.5490,
     cert: true,
@@ -28,6 +29,7 @@ const restaurants = [
     name: "Roof Burger",
     type: "HAMBURGUESAS GOURMET · PAN SIN GLUTEN",
     icon: "🍔",
+    img: "img/fc-roofburger.png",
     city: "viña",
     lat: -33.0343, lng: -71.5530,
     cert: false,
@@ -46,6 +48,7 @@ const restaurants = [
     name: "Oops.sepuede",
     type: "PANADERÍA · REPOSTERÍA 100% SIN GLUTEN",
     icon: "🧁",
+    img: "img/fc-oops.png",
     city: "viña",
     lat: -33.0411, lng: -71.5520,
     cert: true,
@@ -126,18 +129,19 @@ const restaurants = [
 
 const stores = [
   {
-    id: 'quimey-delivery',
+    id: 'all-free',
     featured: true,
     name: "All Free",
-    type: "PRODUCTOS / DELIVERY 100% SIN GLUTEN",
-    icon: "📦",
+    type: "TIENDA ONLINE · TODAS LAS INTOLERANCIAS",
+    icon: "🌿",
+    img: "img/fc-all-free.png",
     cat: "especializada",
-    rating: 4.8,
-    reviews: 180,
-    desc: "En ALL FREE, más que vender productos, buscamos facilitar la vida de las familias, ofreciendo un espacio donde encontrar todo lo necesario en un solo lugar.",
-    tags: ["100% Sin gluten", "Delivery", "Vegano"],
-    address: "Pedidos: allfree.cl",
-    tel: "(+56) 9 8230 7039"
+    rating: 4.7,
+    reviews: 312,
+    desc: "Tienda online especializada en productos naturales para todas las alergias e intolerancias. Sin gluten, sin lactosa, vegano, keto, sin azúcar y más. Despacho a todo Chile.",
+    tags: ["Sin gluten", "Sin lactosa", "Vegano", "Keto", "Despacho nacional"],
+    address: "Apoquindo 7474, Las Condes · allfree.cl",
+    tel: "+56 9 8230 7039"
   },
   {
     id: 'celina-online',
@@ -145,6 +149,7 @@ const stores = [
     name: "Celina Tienda Online",
     type: "TIENDA ONLINE · 100% SIN GLUTEN",
     icon: "🛒",
+    img: "img/fc-celina-online.png",
     cat: "online",
     rating: 4.7,
     reviews: 94,
@@ -159,6 +164,7 @@ const stores = [
     name: "Jumbo Viña del Mar",
     type: "SUPERMERCADO · SECCIÓN SIN GLUTEN",
     icon: "🏬",
+    img: "img/fc-jumbo.png",
     cat: "super",
     rating: 4.2,
     reviews: 534,
@@ -255,10 +261,10 @@ async function requestUserLocation() {
       userLocation = { lat, lng, city };
       updateLocationBanner();
 
-      /* Re-renderizar si el usuario está en la sección Restaurantes */
-      if (document.getElementById('page-restaurantes')?.classList.contains('active')) {
-        renderRest();
-      }
+      /* Re-renderizar secciones que dependen de la ubicación */
+      if (document.getElementById('page-restaurantes')?.classList.contains('active')) renderRest();
+      if (document.getElementById('page-tiendas')?.classList.contains('active'))      renderStore();
+      if (document.getElementById('page-asistente')?.classList.contains('active') && typeof renderClinicas === 'function') renderClinicas();
     },
     (err) => {
       /* err.code: 1 = PERMISSION_DENIED, 2 = UNAVAILABLE, 3 = TIMEOUT */
@@ -336,10 +342,13 @@ function renderFeaturedCard(r) {
   const distHtml = (r._dist != null && r._dist < 9000)
     ? `<div class="fc-dist">📍 ${formatDist(r._dist)}</div>`
     : '';
+  const iconHtml = r.img
+    ? `<div class="fc-img-wrap"><img src="${r.img}" alt="${r.name}" class="fc-img" onerror="this.parentElement.innerHTML='<span class=fc-emoji-fb>${r.icon}</span>'"></div>`
+    : `<div class="fc-emoji">${r.icon}</div>`;
   return `
     <div class="fc-card" onclick="openRestaurant('${r.id}')">
       <div class="fc-top">
-        <div class="fc-emoji">${r.icon}</div>
+        ${iconHtml}
         <div class="fc-meta">
           <div class="fc-stars">${stars} ${r.rating}</div>
           <div class="fc-reviews">${r.reviews} opiniones</div>
@@ -479,12 +488,15 @@ function renderRest() {
 
 /* ══ TARJETA TIENDA DESTACADA ══ */
 function renderStoreFeaturedCard(s) {
-  const full  = Math.round(s.rating);
-  const stars = '★'.repeat(full) + '☆'.repeat(5 - full);
+  const full     = Math.round(s.rating);
+  const stars    = '★'.repeat(full) + '☆'.repeat(5 - full);
+  const iconHtml = s.img
+    ? `<div class="fc-img-wrap"><img src="${s.img}" alt="${s.name}" class="fc-img" onerror="this.parentElement.innerHTML='<span class=fc-emoji-fb>${s.icon}</span>'"></div>`
+    : `<div class="fc-emoji">${s.icon}</div>`;
   return `
     <div class="fc-card" onclick="openStore('${s.id}')">
       <div class="fc-top">
-        <div class="fc-emoji">${s.icon}</div>
+        ${iconHtml}
         <div class="fc-meta">
           <div class="fc-stars">${stars} ${s.rating}</div>
           <div class="fc-reviews">${s.reviews} opiniones</div>
@@ -636,6 +648,26 @@ function renderStore() {
       font-size: 44px;
       line-height: 1;
       filter: drop-shadow(0 2px 6px rgba(0,0,0,0.3));
+    }
+    .fc-img-wrap {
+      width: 64px;
+      height: 64px;
+      border-radius: 14px;
+      overflow: hidden;
+      flex-shrink: 0;
+      background: rgba(255,255,255,0.06);
+    }
+    .fc-img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+    .fc-emoji-fb {
+      font-size: 44px;
+      line-height: 64px;
+      display: block;
+      text-align: center;
     }
     .fc-meta {
       display: flex;
