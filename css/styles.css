@@ -1761,6 +1761,17 @@ body > .topbar { display: none; }
   gap: 8px;
 }
 
+.loc-banner.loc-blocked {
+  background: rgba(150, 150, 150, 0.08);
+  color: #666;
+  border: 1px solid rgba(150, 150, 150, 0.20);
+  flex-wrap: wrap;
+  line-height: 1.5;
+}
+.loc-banner.loc-blocked strong {
+  color: #444;
+}
+
 /* ── Botón "Activar →" dentro del banner ── */
 .loc-btn {
   margin-left: auto;
@@ -1805,4 +1816,283 @@ body > .topbar { display: none; }
   margin-left: 6px;
   vertical-align: middle;
   letter-spacing: 0.02em;
+}
+
+/* ═══════════════════════════════════════════════
+   HOME PAGE — pantalla de bienvenida post-login
+   ═══════════════════════════════════════════════ */
+
+/* ── Hero superior ── */
+.home-hero {
+  position: relative;
+  background: #111a10;
+  overflow: hidden;
+  padding: 48px 24px 36px;
+  text-align: center;
+}
+
+.home-hero-glow {
+  position: absolute;
+  top: -60px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 340px;
+  height: 260px;
+  background: radial-gradient(ellipse at center, rgba(80,200,80,0.22) 0%, rgba(46,120,46,0.10) 50%, transparent 75%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+.home-hero-content {
+  position: relative;
+  z-index: 1;
+}
+
+.home-logo {
+  height: 40px;
+  object-fit: contain;
+  margin-bottom: 20px;
+  filter: drop-shadow(0 0 12px rgba(100,200,80,0.3));
+}
+
+.home-greeting {
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: 13px;
+  font-weight: 500;
+  color: rgba(255,255,255,0.55);
+  letter-spacing: 0.04em;
+  margin-bottom: 10px;
+}
+
+.home-headline {
+  font-family: 'Funnel Display', sans-serif;
+  font-size: 28px;
+  font-weight: 800;
+  color: #ffffff;
+  line-height: 1.15;
+  margin-bottom: 14px;
+  letter-spacing: -0.3px;
+}
+
+.home-tagline {
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: 13px;
+  font-weight: 400;
+  color: rgba(255,255,255,0.5);
+  line-height: 1.6;
+  max-width: 300px;
+  margin: 0 auto;
+}
+
+/* ── Texto de introducción ── */
+.home-intro {
+  background: #111a10;
+  padding: 24px 24px 4px;
+}
+
+.home-intro-text {
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: 13.5px;
+  font-weight: 400;
+  color: rgba(255,255,255,0.52);
+  line-height: 1.75;
+  border-left: 2px solid rgba(78,107,74,0.45);
+  padding-left: 16px;
+}
+
+/* ── Strip de alergias activas ── */
+.home-allergy-strip {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(78,107,74,0.15);
+  border: 1px solid rgba(78,107,74,0.30);
+  border-radius: 0;
+  padding: 10px 20px;
+  color: rgba(200,230,200,0.85);
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.home-allergy-strip svg {
+  flex-shrink: 0;
+  color: var(--gold);
+}
+
+.home-allergy-strip span {
+  flex: 1;
+}
+
+.home-allergy-edit {
+  background: transparent;
+  border: 1px solid rgba(232,168,32,0.4);
+  color: var(--gold);
+  border-radius: 100px;
+  padding: 3px 12px;
+  font-size: 11px;
+  font-weight: 600;
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.home-allergy-edit:hover {
+  background: rgba(232,168,32,0.12);
+}
+
+/* ── Grid principal 2×2 ── */
+.home-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  padding: 18px 16px 0;
+  background: #111a10;
+}
+
+.home-grid-full {
+  padding: 12px 16px 0;
+  background: #111a10;
+}
+
+/* ── Tarjetas ── */
+.home-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 10px;
+  background: #1a2419;
+  border: 1px solid rgba(255,255,255,0.07);
+  border-radius: 20px;
+  padding: 20px 18px 18px;
+  cursor: pointer;
+  overflow: hidden;
+  transition: transform 0.18s ease, border-color 0.18s ease, box-shadow 0.18s ease;
+  text-align: left;
+  -webkit-tap-highlight-color: transparent;
+  width: 100%;
+}
+
+.home-card:active {
+  transform: scale(0.97);
+}
+
+.home-card:hover {
+  border-color: rgba(255,255,255,0.15);
+  box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+}
+
+/* Glow interno de cada tarjeta */
+.home-card-glow {
+  position: absolute;
+  top: -30px;
+  right: -30px;
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  pointer-events: none;
+  opacity: 0.5;
+  transition: opacity 0.2s;
+}
+
+.home-card:hover .home-card-glow { opacity: 0.75; }
+
+.home-card--scanner .home-card-glow  { background: radial-gradient(circle, rgba(100,200,100,0.30) 0%, transparent 70%); }
+.home-card--chat .home-card-glow     { background: radial-gradient(circle, rgba(167,139,250,0.30) 0%, transparent 70%); }
+.home-card--restaurantes .home-card-glow { background: radial-gradient(circle, rgba(232,168,32,0.28) 0%, transparent 70%); }
+.home-card--tiendas .home-card-glow  { background: radial-gradient(circle, rgba(100,180,240,0.28) 0%, transparent 70%); }
+.home-card--descubre .home-card-glow { background: radial-gradient(circle, rgba(255,140,100,0.25) 0%, transparent 70%); }
+
+/* Ícono circular */
+.home-card-icon {
+  width: 44px;
+  height: 44px;
+  border-radius: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.home-card-icon svg {
+  width: 22px;
+  height: 22px;
+}
+
+.home-card--scanner .home-card-icon  { background: rgba(100,200,100,0.15); color: #7ed98a; }
+.home-card--chat .home-card-icon     { background: rgba(167,139,250,0.15); color: #b8a4fc; }
+.home-card--restaurantes .home-card-icon { background: rgba(232,168,32,0.15); color: var(--gold); }
+.home-card--tiendas .home-card-icon  { background: rgba(100,180,240,0.15); color: #88c8f5; }
+.home-card--descubre .home-card-icon { background: rgba(255,140,100,0.15); color: #ffaa80; }
+
+/* Texto de la tarjeta */
+.home-card-label {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  flex: 1;
+}
+
+.home-card-title {
+  font-family: 'Funnel Display', sans-serif;
+  font-size: 17px;
+  font-weight: 700;
+  color: #ffffff;
+  line-height: 1.1;
+}
+
+.home-card-sub {
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: 11px;
+  font-weight: 400;
+  color: rgba(255,255,255,0.45);
+  line-height: 1.4;
+}
+
+/* Flecha decorativa */
+.home-card-arrow {
+  font-size: 16px;
+  color: rgba(255,255,255,0.2);
+  align-self: flex-end;
+  line-height: 1;
+  transition: color 0.2s, transform 0.2s;
+}
+
+.home-card:hover .home-card-arrow {
+  color: rgba(255,255,255,0.5);
+  transform: translateX(3px);
+}
+
+/* Tarjeta DESCUBRE — fila completa */
+.home-card--descubre {
+  flex-direction: row;
+  align-items: center;
+  gap: 16px;
+  padding: 18px 20px;
+}
+
+.home-card--descubre .home-card-label { flex-direction: column; }
+.home-card--descubre .home-card-arrow { align-self: center; margin-left: auto; }
+
+/* ── Footer de marca ── */
+.home-footer {
+  background: #111a10;
+  padding: 20px 16px 32px;
+  text-align: center;
+}
+
+.home-footer-badge {
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  color: rgba(255,255,255,0.18);
+  text-transform: uppercase;
+}
+
+/* ── Ajustes para que el page-home use fondo oscuro ── */
+#page-home {
+  background: #111a10;
+  min-height: 100vh;
 }

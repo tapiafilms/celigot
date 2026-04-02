@@ -18,6 +18,64 @@ const PRESET_ALLERGIES = [
 let selectedAllergies = new Set();
 let customAllergies   = [];
 
+/* ══ HOME — navegar al home post-login ══ */
+function goToHome() {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+
+  const pageEl = document.getElementById('page-home');
+  if (pageEl) pageEl.classList.add('active');
+
+  /* Actualizar saludo y strip de alergias */
+  _refreshHomeUI();
+
+  const appPages = document.querySelector('.app-pages');
+  if (appPages && window.innerWidth >= 900) {
+    appPages.scrollTop = 0;
+  } else {
+    window.scrollTo({ top: 0, behavior: 'instant' });
+  }
+}
+
+/* Actualizar contenido dinámico del Home */
+function _refreshHomeUI() {
+  /* Saludo personalizado */
+  const greetingEl = document.getElementById('homeGreeting');
+  if (greetingEl) {
+    let nombre = '';
+    try {
+      const p = currentProfile || JSON.parse(localStorage.getItem('celigo_profile_v1') || '{}');
+      nombre = p.nombre || '';
+    } catch(e) {}
+    const hora = new Date().getHours();
+    const saludo = hora < 12 ? 'Buenos días' : hora < 19 ? 'Buenas tardes' : 'Buenas noches';
+    greetingEl.textContent = nombre ? `${saludo}, ${nombre} 👋` : `${saludo} 👋`;
+  }
+
+  /* Strip de alergias activas */
+  const strip  = document.getElementById('homeAllergyStrip');
+  const stripT = document.getElementById('homeAllergyText');
+  if (strip && stripT) {
+    try {
+      const p = currentProfile || JSON.parse(localStorage.getItem('celigo_profile_v1') || '{}');
+      const alergias = Array.isArray(p.alergias) ? p.alergias : [];
+      const condicion = p.condicion || '';
+      if (condicion || alergias.length > 0) {
+        const parts = [];
+        if (condicion) parts.push(condicion);
+        if (alergias.length > 0) parts.push(`${alergias.length} alergia${alergias.length > 1 ? 's' : ''} activa${alergias.length > 1 ? 's' : ''}`);
+        stripT.textContent = parts.join(' · ');
+        strip.style.display = 'flex';
+      } else {
+        strip.style.display = 'none';
+      }
+    } catch(e) {
+      strip.style.display = 'none';
+    }
+  }
+}
+
 /* ══ NAVEGACIÓN ══ */
 function switchTab(name, el, fromNav = false) {
   document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));

@@ -130,6 +130,10 @@ function _refreshAllUI() {
   if (typeof requestUserLocation === 'function') {
     requestUserLocation();
   }
+  /* ── Navegar al Home tras autenticación exitosa ── */
+  if (typeof goToHome === 'function') {
+    goToHome();
+  }
 }
 
 /* ════════════════════════════════════════════════════

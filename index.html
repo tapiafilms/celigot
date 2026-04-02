@@ -48,7 +48,7 @@
 <!-- TOP BAR -->
 <div class="topbar">
   <div class="topbar-head">
-    <div class="logo">
+    <div class="logo" onclick="goToHome()" style="cursor:pointer">
       <img src="img/logo-full.png" alt="CeliGO">
     </div>
     <!-- Avatar de perfil — click abre el panel de perfil -->
@@ -58,7 +58,7 @@
     </button>
   </div>
   <div class="tabs">
-      <div class="tab active" onclick="switchTab('restaurantes',this)">
+      <div class="tab" onclick="switchTab('restaurantes',this)">
         <svg viewBox="0 0 24 24"><path d="M18 8h1a4 4 0 010 8h-1M2 8h16v9a4 4 0 01-4 4H6a4 4 0 01-4-4V8zM6 1v3M10 1v3M14 1v3"/></svg>
         COMER
       </div>
@@ -90,10 +90,10 @@
   <div class="app-topbar">
     <div class="topbar">
       <div class="topbar-head">
-        <div class="logo"><img src="img/logo-full.png" alt="CeliGO"></div>
+        <div class="logo" onclick="goToHome()" style="cursor:pointer"><img src="img/logo-full.png" alt="CeliGO"></div>
       </div>
       <div class="tabs">
-        <div class="tab active" onclick="switchTab('restaurantes',this)">
+        <div class="tab" onclick="switchTab('restaurantes',this)">
           <svg viewBox="0 0 24 24"><path d="M18 8h1a4 4 0 010 8h-1M2 8h16v9a4 4 0 01-4 4H6a4 4 0 01-4-4V8zM6 1v3M10 1v3M14 1v3"/></svg>
           COMER
         </div>
@@ -119,6 +119,128 @@
 
   <!-- Área scrollable de las páginas -->
   <div class="app-pages">
+
+<!-- ══ HOME — pantalla de bienvenida post-login ══ -->
+<div class="page active" id="page-home">
+
+  <!-- HERO SUPERIOR -->
+  <div class="home-hero">
+    <div class="home-hero-glow"></div>
+    <div class="home-hero-content">
+      <img src="img/logo-full.png" alt="CeliGO" class="home-logo">
+      <p class="home-greeting" id="homeGreeting">Bienvenido/a 👋</p>
+      <h1 class="home-headline">Tu guía inteligente<br>para comer seguro</h1>
+      <p class="home-tagline">Escanea etiquetas, consulta con IA y encuentra lugares confiables en Viña del Mar y Concón.</p>
+    </div>
+  </div>
+
+  <!-- TEXTO DE INTRODUCCIÓN -->
+  <div class="home-intro">
+    <p class="home-intro-text">
+      Todo lo que necesitas para una vida sin gluten, en un solo lugar.<br><br>
+      Escanea etiquetas de productos, encuentra restaurantes confiables cerca de ti y resuelve tus dudas al instante con el asistente IA.<br><br>
+      Te muestra las tiendas sin gluten del sector y puedes explorar recomendaciones reales de otras personas de tu ciudad.<br><br>
+      Porque no estás solo: hay toda una comunidad lista para ayudarte.
+    </p>
+  </div>
+
+  <!-- STRIP DE ALERGIAS ACTIVAS -->
+  <div class="home-allergy-strip" id="homeAllergyStrip" style="display:none">
+    <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+    <span id="homeAllergyText">Perfil activo</span>
+    <button onclick="openProfilePanel()" class="home-allergy-edit">Editar</button>
+  </div>
+
+  <!-- GRID PRINCIPAL 2×2 -->
+  <div class="home-grid">
+
+    <button class="home-card home-card--scanner" onclick="switchTab('scanner',null)">
+      <div class="home-card-glow"></div>
+      <div class="home-card-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M3 7V5a2 2 0 012-2h2M17 3h2a2 2 0 012 2v2M21 17v2a2 2 0 01-2 2h-2M7 21H5a2 2 0 01-2-2v-2"/>
+          <circle cx="12" cy="12" r="3"/>
+          <path d="M12 9v.01M12 15v.01"/>
+        </svg>
+      </div>
+      <div class="home-card-label">
+        <span class="home-card-title">Escáner</span>
+        <span class="home-card-sub">de etiquetas con IA</span>
+      </div>
+      <div class="home-card-arrow">→</div>
+    </button>
+
+    <button class="home-card home-card--chat" onclick="switchTab('asistente',null)">
+      <div class="home-card-glow"></div>
+      <div class="home-card-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/>
+          <path d="M8 10h8M8 13h5"/>
+        </svg>
+      </div>
+      <div class="home-card-label">
+        <span class="home-card-title">Consultas</span>
+        <span class="home-card-sub">con IA</span>
+      </div>
+      <div class="home-card-arrow">→</div>
+    </button>
+
+    <button class="home-card home-card--restaurantes" onclick="switchTab('restaurantes',null)">
+      <div class="home-card-glow"></div>
+      <div class="home-card-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M18 8h1a4 4 0 010 8h-1M2 8h16v9a4 4 0 01-4 4H6a4 4 0 01-4-4V8zM6 1v3M10 1v3M14 1v3"/>
+        </svg>
+      </div>
+      <div class="home-card-label">
+        <span class="home-card-title">Restaurantes</span>
+        <span class="home-card-sub">seguros</span>
+      </div>
+      <div class="home-card-arrow">→</div>
+    </button>
+
+    <button class="home-card home-card--tiendas" onclick="switchTab('tiendas',null)">
+      <div class="home-card-glow"></div>
+      <div class="home-card-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4zM3 6h18M16 10a4 4 0 01-8 0"/>
+        </svg>
+      </div>
+      <div class="home-card-label">
+        <span class="home-card-title">Tiendas</span>
+        <span class="home-card-sub">confiables</span>
+      </div>
+      <div class="home-card-arrow">→</div>
+    </button>
+
+  </div><!-- /home-grid -->
+
+  <!-- CARD DESCUBRE — ancho completo -->
+  <div class="home-grid-full">
+    <button class="home-card home-card--descubre" onclick="switchTab('descubre',null)">
+      <div class="home-card-glow"></div>
+      <div class="home-card-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="3" y="3" width="7" height="7" rx="1"/>
+          <rect x="14" y="3" width="7" height="7" rx="1"/>
+          <rect x="3" y="14" width="7" height="7" rx="1"/>
+          <rect x="14" y="14" width="7" height="7" rx="1"/>
+        </svg>
+      </div>
+      <div class="home-card-label">
+        <span class="home-card-title">Descubre</span>
+        <span class="home-card-sub">comunidad y novedades sin gluten</span>
+      </div>
+      <div class="home-card-arrow">→</div>
+    </button>
+  </div>
+
+  <!-- FOOTER MARCA -->
+  <div class="home-footer">
+    <span class="home-footer-badge">EAT SAFE · CELIACO FRIENDLY</span>
+  </div>
+
+</div><!-- /page-home -->
 
 <div class="page" id="page-scanner">
 
@@ -243,7 +365,7 @@
 </div>
 
 <!-- ══ RESTAURANTES ══ -->
-<div class="page active" id="page-restaurantes">
+<div class="page" id="page-restaurantes">
 
   <!-- HERO COMER -->
   <div class="rest-hero">
@@ -503,7 +625,7 @@
 
 <!-- BOTTOM NAV -->
 <nav class="bottom-nav">
-  <button class="nav-btn active" onclick="switchTab('restaurantes',this,true)">
+  <button class="nav-btn" onclick="switchTab('restaurantes',this,true)">
     <svg viewBox="0 0 24 24"><path d="M18 8h1a4 4 0 010 8h-1M2 8h16v9a4 4 0 01-4 4H6a4 4 0 01-4-4V8zM6 1v3M10 1v3M14 1v3"/></svg>
     <span>COMER</span>
   </button>
