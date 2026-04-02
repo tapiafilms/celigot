@@ -1761,6 +1761,17 @@ body > .topbar { display: none; }
   gap: 8px;
 }
 
+.loc-banner.loc-blocked {
+  background: rgba(150, 150, 150, 0.08);
+  color: #666;
+  border: 1px solid rgba(150, 150, 150, 0.20);
+  flex-wrap: wrap;
+  line-height: 1.5;
+}
+.loc-banner.loc-blocked strong {
+  color: #444;
+}
+
 /* ── Botón "Activar →" dentro del banner ── */
 .loc-btn {
   margin-left: auto;

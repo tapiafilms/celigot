@@ -260,9 +260,9 @@ async function requestUserLocation() {
         renderRest();
       }
     },
-    () => {
-      /* Permiso denegado o timeout */
-      userLocation = 'denied';
+    (err) => {
+      /* err.code: 1 = PERMISSION_DENIED, 2 = UNAVAILABLE, 3 = TIMEOUT */
+      userLocation = (err.code === 1) ? 'blocked' : 'denied';
       updateLocationBanner();
     },
     { timeout: 10000, maximumAge: 300000 /* 5 min */ }
@@ -279,9 +279,20 @@ function updateLocationBanner() {
     banner.innerHTML   = `<span class="loc-dot"></span> Detectando tu ubicación…`;
     banner.style.display = '';
 
+  } else if (userLocation === 'blocked') {
+    /* Permiso bloqueado en el navegador — no se puede reintentar programáticamente */
+    const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
+    const hint  = isIOS
+      ? 'Ve a <strong>Configuración → Safari → Ubicación</strong> y permite el acceso.'
+      : 'Toca el 🔒 en la barra de dirección de tu navegador y activa la ubicación.';
+    banner.className   = 'loc-banner loc-blocked';
+    banner.innerHTML   = `<span>🔒</span> <span>Ubicación bloqueada. ${hint}</span>`;
+    banner.style.display = '';
+
   } else if (userLocation === 'denied') {
+    /* Error de timeout o señal — se puede reintentar */
     banner.className   = 'loc-banner loc-denied';
-    banner.innerHTML   = `<span>📍</span> <span>Activa la ubicación para ver los restaurantes más cercanos</span> <button class="loc-btn" onclick="retryLocation()">Activar →</button>`;
+    banner.innerHTML   = `<span>📍</span> <span>No se pudo detectar la ubicación</span> <button class="loc-btn" onclick="retryLocation()">Reintentar →</button>`;
     banner.style.display = '';
 
   } else {
@@ -296,7 +307,14 @@ function updateLocationBanner() {
 
 /* Reintentar ubicación (desde el botón del banner) */
 function retryLocation() {
-  userLocation = null; // resetear para que requestUserLocation no haga early-return
+  userLocation = null; // resetear estado para permitir nuevo intento
+  requestUserLocation();
+}
+
+/* Intentar activar desde estado bloqueado
+   (el usuario habilitó el permiso en config y vuelve a la app) */
+function tryUnblock() {
+  userLocation = null;
   requestUserLocation();
 }
 
