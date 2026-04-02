@@ -11,6 +11,7 @@ const restaurants = [
     type: "RESTAURANTE · DELIVERY · 100% SIN GLUTEN",
     icon: "🍱",
     city: "viña",
+    lat: -33.0354, lng: -71.5490,
     cert: true,
     rating: 4.8,
     reviews: 210,
@@ -28,6 +29,7 @@ const restaurants = [
     type: "HAMBURGUESAS GOURMET · PAN SIN GLUTEN",
     icon: "🍔",
     city: "viña",
+    lat: -33.0343, lng: -71.5530,
     cert: false,
     rating: 4.3,
     reviews: 89,
@@ -45,6 +47,7 @@ const restaurants = [
     type: "PANADERÍA · REPOSTERÍA 100% SIN GLUTEN",
     icon: "🧁",
     city: "viña",
+    lat: -33.0411, lng: -71.5520,
     cert: true,
     rating: 4.7,
     reviews: 134,
@@ -60,6 +63,7 @@ const restaurants = [
     type: "CAFÉ · PASTELERÍA",
     icon: "☕",
     city: "viña",
+    lat: -32.9820, lng: -71.5295,
     cert: false,
     rating: 4.4,
     reviews: 76,
@@ -75,6 +79,7 @@ const restaurants = [
     type: "RESTAURANTE ITALIANO · MEDITERRÁNEO",
     icon: "🍝",
     city: "valpo",
+    lat: -33.0475, lng: -71.6250,
     cert: false,
     rating: 4.6,
     reviews: 926,
@@ -90,6 +95,7 @@ const restaurants = [
     type: "RESTAURANTE · PANADERÍA 100% SIN GLUTEN",
     icon: "🥖",
     city: "concon",
+    lat: -32.9170, lng: -71.5408,
     cert: true,
     rating: 4.7,
     reviews: 112,
@@ -105,6 +111,7 @@ const restaurants = [
     type: "CAFÉ · RESTAURANTE VEGANO SIN GLUTEN",
     icon: "🌿",
     city: "concon",
+    lat: -32.6485, lng: -71.4495,
     cert: true,
     rating: 4.5,
     reviews: 58,
@@ -186,6 +193,107 @@ const stores = [
   },
 ];
 
+/* ══════════════════════════════════════════════════════
+   GEOLOCALIZACIÓN — detectar posición del usuario
+   ══════════════════════════════════════════════════════ */
+
+/* Estado global de ubicación:
+   null      → aún no se solicitó
+   'pending' → esperando respuesta del navegador
+   'denied'  → permiso denegado o no disponible
+   { lat, lng, city } → ubicación obtenida */
+let userLocation = null;
+
+/* Distancia en km entre dos coordenadas (Haversine) */
+function haversineKm(lat1, lon1, lat2, lon2) {
+  const R    = 6371;
+  const dLat = (lat2 - lat1) * Math.PI / 180;
+  const dLon = (lon2 - lon1) * Math.PI / 180;
+  const a    = Math.sin(dLat / 2) ** 2 +
+               Math.cos(lat1 * Math.PI / 180) *
+               Math.cos(lat2 * Math.PI / 180) *
+               Math.sin(dLon / 2) ** 2;
+  return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+}
+
+/* Formatear distancia legible */
+function formatDist(km) {
+  if (km < 1)  return Math.round(km * 1000) + ' m';
+  if (km < 10) return km.toFixed(1) + ' km';
+  return Math.round(km) + ' km';
+}
+
+/* Solicitar ubicación al navegador (silencioso, sin interrumpir UX) */
+async function requestUserLocation() {
+  if (!navigator.geolocation) return;
+  if (userLocation && userLocation !== 'pending') return; // ya detectada o denegada
+
+  userLocation = 'pending';
+  updateLocationBanner();
+
+  navigator.geolocation.getCurrentPosition(
+    async (pos) => {
+      const { latitude: lat, longitude: lng } = pos.coords;
+
+      /* Geocodificación inversa con OpenStreetMap Nominatim (gratuito, sin API key) */
+      let city = '';
+      try {
+        const res  = await fetch(
+          `https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lng}&format=json&accept-language=es`,
+          { headers: { 'Accept': 'application/json' } }
+        );
+        const data = await res.json();
+        city = data?.address?.city
+            || data?.address?.town
+            || data?.address?.municipality
+            || data?.address?.village
+            || '';
+      } catch (e) {
+        console.warn('[CeliGO] Geocoding error:', e);
+      }
+
+      userLocation = { lat, lng, city };
+      updateLocationBanner();
+
+      /* Re-renderizar si el usuario está en la sección Restaurantes */
+      if (document.getElementById('page-restaurantes')?.classList.contains('active')) {
+        renderRest();
+      }
+    },
+    () => {
+      /* Permiso denegado o timeout */
+      userLocation = 'denied';
+      updateLocationBanner();
+    },
+    { timeout: 10000, maximumAge: 300000 /* 5 min */ }
+  );
+}
+
+/* Actualizar el banner de ubicación en el DOM */
+function updateLocationBanner() {
+  const banner = document.getElementById('location-banner');
+  if (!banner) return;
+
+  if (!userLocation || userLocation === 'pending') {
+    banner.className   = 'loc-banner loc-pending';
+    banner.innerHTML   = `<span class="loc-dot"></span> Detectando tu ubicación…`;
+    banner.style.display = '';
+
+  } else if (userLocation === 'denied') {
+    banner.className   = 'loc-banner loc-denied';
+    banner.innerHTML   = `<span>📍</span> Activa la ubicación para ver los restaurantes más cercanos`;
+    banner.style.display = '';
+
+  } else {
+    const cityText     = userLocation.city
+      ? `<strong>${userLocation.city}</strong>`
+      : 'Tu ubicación';
+    banner.className   = 'loc-banner loc-active';
+    banner.innerHTML   = `<span>📍</span> ${cityText} · Ordenados por cercanía`;
+    banner.style.display = '';
+  }
+}
+
 /* ══ FILTROS ══ */
 let restFilter  = 'todos';
 let storeFilter = 'todos';
@@ -199,8 +307,11 @@ function setFilter(btn, type, val) {
 
 /* ══ TARJETA DESTACADA ══ */
 function renderFeaturedCard(r) {
-  const full  = Math.round(r.rating);
-  const stars = '★'.repeat(full) + '☆'.repeat(5 - full);
+  const full     = Math.round(r.rating);
+  const stars    = '★'.repeat(full) + '☆'.repeat(5 - full);
+  const distHtml = (r._dist != null && r._dist < 9000)
+    ? `<div class="fc-dist">📍 ${formatDist(r._dist)}</div>`
+    : '';
   return `
     <div class="fc-card" onclick="openRestaurant('${r.id}')">
       <div class="fc-top">
@@ -209,6 +320,7 @@ function renderFeaturedCard(r) {
           <div class="fc-stars">${stars} ${r.rating}</div>
           <div class="fc-reviews">${r.reviews} opiniones</div>
           ${r.cert ? '<div class="fc-cert">✓ CERTIFICADO</div>' : ''}
+          ${distHtml}
         </div>
       </div>
       <div class="fc-name">${r.name}</div>
@@ -227,13 +339,16 @@ function renderFeaturedCard(r) {
 
 /* ══ TARJETA REGULAR ══ */
 function renderPlaceCard(r) {
+  const distBadge = (r._dist != null && r._dist < 9000)
+    ? `<span class="place-dist">${formatDist(r._dist)}</span>`
+    : '';
   return `
     <div class="place-card" ${r.id ? `onclick="openRestaurant('${r.id}')" style="cursor:pointer"` : ''}>
       <div class="place-head">
         <div style="display:flex;gap:10px;align-items:flex-start">
           <div class="place-icon" style="background:var(--coral-light)">${r.icon}</div>
           <div>
-            <div class="place-name">${r.name} ${r.cert ? '<span class="badge-cert">✓ CERT.</span>' : ''}</div>
+            <div class="place-name">${r.name} ${r.cert ? '<span class="badge-cert">✓ CERT.</span>' : ''} ${distBadge}</div>
             <div class="place-type">${r.type}</div>
           </div>
         </div>
@@ -258,28 +373,38 @@ function renderPlaceCard(r) {
 
 /* ══ RENDER RESTAURANTES ══ */
 function renderRest() {
-  const q = document.getElementById('searchRest').value.toLowerCase().trim();
+  const q   = document.getElementById('searchRest').value.toLowerCase().trim();
+  const loc = (userLocation && userLocation !== 'pending' && userLocation !== 'denied')
+              ? userLocation : null;
 
-  const featured = restaurants.filter(r => r.featured);
-  const regular  = restaurants.filter(r => !r.featured);
-
-  /* Featured: siempre visibles (filtradas por ciudad/cert), o buscadas si hay query */
-  const filteredFeatured = featured.filter(r => {
-    const mq = !q || r.name.toLowerCase().includes(q) || r.desc.toLowerCase().includes(q);
-    const mf = restFilter === 'todos'
-      || (restFilter === 'certificado' && r.cert)
-      || r.city === restFilter;
-    return mq && mf;
+  /* Añadir distancia a cada restaurante si hay ubicación */
+  const withDist = (r) => ({
+    ...r,
+    _dist: (loc && r.lat && r.lng)
+      ? haversineKm(loc.lat, loc.lng, r.lat, r.lng)
+      : null
   });
 
-  /* Regular: filtradas por query y categoría */
-  const filteredRegular = regular.filter(r => {
-    const mq = !q || r.name.toLowerCase().includes(q) || r.desc.toLowerCase().includes(q);
-    const mf = restFilter === 'todos'
-      || (restFilter === 'certificado' && r.cert)
-      || r.city === restFilter;
-    return mq && mf;
-  });
+  /* Filtro por texto y categoría */
+  const applyFilter = (arr) => arr
+    .map(withDist)
+    .filter(r => {
+      const mq = !q || r.name.toLowerCase().includes(q) || r.desc.toLowerCase().includes(q);
+      const mf = restFilter === 'todos'
+        || (restFilter === 'certificado' && r.cert)
+        || r.city === restFilter;
+      return mq && mf;
+    });
+
+  let filteredFeatured = applyFilter(restaurants.filter(r => r.featured));
+  let filteredRegular  = applyFilter(restaurants.filter(r => !r.featured));
+
+  /* Ordenar por distancia si la ubicación está disponible */
+  if (loc) {
+    const byDist = (a, b) => (a._dist ?? 9999) - (b._dist ?? 9999);
+    filteredFeatured.sort(byDist);
+    filteredRegular.sort(byDist);
+  }
 
   const el = document.getElementById('restList');
 
@@ -290,16 +415,39 @@ function renderRest() {
 
   let html = '';
 
-  if (filteredFeatured.length > 0) {
-    html += `<div class="featured-section-label">⭐ Restaurantes destacados</div>`;
-    html += filteredFeatured.map(r => renderFeaturedCard(r)).join('');
-  }
+  if (loc) {
+    /* ── Con ubicación: sección "Cerca de ti" + "Más opciones" ── */
+    const NEAR_KM = 50; // umbral de "cercano"
 
-  if (filteredRegular.length > 0) {
-    if (filteredFeatured.length > 0) {
-      html += `<div class="other-rest-label">Más restaurantes</div>`;
+    /* Mezclar todo ordenado por distancia, conservando featured primero si distancia igual */
+    const allRests = [
+      ...filteredFeatured.map(r => ({ ...r, _isFeatured: true  })),
+      ...filteredRegular.map(r  => ({ ...r, _isFeatured: false }))
+    ].sort((a, b) => (a._dist ?? 9999) - (b._dist ?? 9999));
+
+    const near = allRests.filter(r => r._dist != null && r._dist <= NEAR_KM);
+    const far  = allRests.filter(r => r._dist == null || r._dist >  NEAR_KM);
+
+    if (near.length > 0) {
+      html += `<div class="featured-section-label">📍 Cerca de ti</div>`;
+      html += near.map(r => r._isFeatured ? renderFeaturedCard(r) : renderPlaceCard(r)).join('');
     }
-    html += filteredRegular.map(r => renderPlaceCard(r)).join('');
+
+    if (far.length > 0) {
+      html += `<div class="other-rest-label">${near.length > 0 ? 'Más restaurantes' : '⭐ Restaurantes'}</div>`;
+      html += far.map(r => r._isFeatured ? renderFeaturedCard(r) : renderPlaceCard(r)).join('');
+    }
+
+  } else {
+    /* ── Sin ubicación: comportamiento original ── */
+    if (filteredFeatured.length > 0) {
+      html += `<div class="featured-section-label">⭐ Restaurantes destacados</div>`;
+      html += filteredFeatured.map(r => renderFeaturedCard(r)).join('');
+    }
+    if (filteredRegular.length > 0) {
+      if (filteredFeatured.length > 0) html += `<div class="other-rest-label">Más restaurantes</div>`;
+      html += filteredRegular.map(r => renderPlaceCard(r)).join('');
+    }
   }
 
   el.innerHTML = html;

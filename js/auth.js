@@ -126,6 +126,10 @@ function _refreshAllUI() {
   if (typeof initDescubreFeed === 'function' && document.getElementById('page-descubre')?.classList.contains('active')) {
     initDescubreFeed();
   }
+  /* Solicitar ubicación automáticamente tras el login (silencioso, en background) */
+  if (typeof requestUserLocation === 'function') {
+    requestUserLocation();
+  }
 }
 
 /* ════════════════════════════════════════════════════
