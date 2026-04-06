@@ -3,7 +3,7 @@
    Versión: 1.0.0
    ══════════════════════════════════════ */
 
-const CACHE_NAME = 'celigo-v1';
+const CACHE_NAME = 'celigo-v4';
 
 /* Recursos que se cachean al instalar */
 const STATIC_ASSETS = [

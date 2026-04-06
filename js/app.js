@@ -115,11 +115,15 @@ function switchTab(name, el, fromNav = false) {
   if (name === 'asistente') {
     if (typeof renderClinicas === 'function') renderClinicas();
     if (typeof requestUserLocation === 'function') requestUserLocation();
-    /* Mismo caso: si ya hay ubicación pero no se ha hecho el fetch OSM */
-    if (typeof userLocation === 'object' && userLocation !== null &&
-        typeof fetchNearbyGlutenFree === 'function' &&
-        (nearbyRestaurantsOSM === null || nearbyStoresOSM === null)) {
-      fetchNearbyGlutenFree(userLocation.lat, userLocation.lng);
+    /* Si ya hay ubicación, lanzar búsquedas pendientes */
+    if (typeof userLocation === 'object' && userLocation !== null) {
+      if (typeof fetchNearbyGlutenFree === 'function' &&
+          (nearbyRestaurantsOSM === null || nearbyStoresOSM === null)) {
+        fetchNearbyGlutenFree(userLocation.lat, userLocation.lng);
+      }
+      if (typeof fetchNearbyClinicas === 'function' && nearbyClinicas === null) {
+        fetchNearbyClinicas(userLocation.lat, userLocation.lng);
+      }
     }
   }
 

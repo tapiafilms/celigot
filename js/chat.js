@@ -1,48 +1,76 @@
 /* ══ ASISTENTE DE ALERGIAS ══ */
 
-/* ── Datos de clínicas ── */
-const CLINICAS = [
-  {
-    icon: '🏨', ciudad: 'Viña del Mar', cityKey: 'viña',
-    name: 'Clínica Ciudad del Mar',
-    dir: 'Centro de Alergias e Inmunología · 13 Norte 635',
-    ctaLabel: 'WhatsApp', ctaType: 'whatsapp',
-    ctaUrl: 'https://wa.me/56322451000?text=Hola%2C%20quiero%20agendar%20una%20consulta%20en%20el%20Centro%20de%20Alergias'
-  },
-  {
-    icon: '🌿', ciudad: 'Viña del Mar', cityKey: 'viña',
-    name: 'AllerVita',
-    dir: 'Centro Médico Inmunología y Alergias · @allervita',
-    ctaLabel: 'Agendar hora', ctaType: 'calendar',
-    ctaUrl: 'https://allervita.site.agendapro.com/cl/sucursal/345255'
-  },
-  {
-    icon: '🔬', ciudad: 'Concón', cityKey: 'concon',
-    name: 'Kinelite',
-    dir: 'Alergias y Prick Test · Edmundo Eluchans 3047 of.103',
-    ctaLabel: 'Agendar hora', ctaType: 'calendar',
-    ctaUrl: 'https://kinelite.cl/prick-test/'
-  },
-  {
-    icon: '💊', ciudad: 'Valparaíso', cityKey: 'valpo',
-    name: 'InmunoMédica',
-    dir: 'Especialistas en Alergias e Inmunología · Región de Valparaíso',
-    ctaLabel: 'Ver más', ctaType: 'calendar',
-    ctaUrl: 'https://inmunomedica.cl/case-study/vina-del-mar/'
-  }
-];
-
-const _WA_SVG  = `<svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>`;
 const _CAL_SVG = `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>`;
 
-/* Convierte la ciudad Nominatim al cityKey interno */
-function _clinicaCityKey(loc) {
-  if (!loc || typeof loc !== 'object') return null;
-  const c = (loc.city || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
-  if (c.includes('vina') || c.includes('viña'))  return 'viña';
-  if (c.includes('valparaiso'))                   return 'valpo';
-  if (c.includes('concon'))                       return 'concon';
-  return null;
+/* ── Estado clínicas Google Places ── */
+let nearbyClinicas = null; /* null | 'loading' | [] | [...] */
+
+function fetchNearbyClinicas(lat, lng) {
+  if (!googlePlacesService) return;
+  if (nearbyClinicas === 'loading') return;
+  nearbyClinicas = 'loading';
+  if (document.getElementById('page-asistente')?.classList.contains('active')) renderClinicas();
+
+  const location  = new google.maps.LatLng(lat, lng);
+  const seen      = new Set();
+  let   pending   = 2;
+  const collected = [];
+
+  function onDone(results, status) {
+    if (status === google.maps.places.PlacesServiceStatus.OK && results?.length) {
+      for (const place of results) {
+        if (place.place_id && !seen.has(place.place_id)) {
+          seen.add(place.place_id);
+          collected.push(_googleToClinica(place, lat, lng));
+        }
+      }
+    } else {
+      console.warn('[CeliGO] Google Places clinicas status:', status);
+    }
+    pending--;
+    if (pending === 0) {
+      nearbyClinicas = collected
+        .filter(c => c.lat && c.lng)
+        .sort((a, b) => (a._dist ?? 9999) - (b._dist ?? 9999))
+        .slice(0, 8);
+      if (document.getElementById('page-asistente')?.classList.contains('active')) renderClinicas();
+    }
+  }
+
+  /* Búsqueda 1: médicos con keyword de alergia/celiaco */
+  googlePlacesService.nearbySearch(
+    { location, radius: 10000, keyword: 'alergia celiaco gluten inmunologia', type: 'doctor' },
+    onDone
+  );
+  /* Búsqueda 2: hospitales y clínicas con keyword de alergia */
+  googlePlacesService.nearbySearch(
+    { location, radius: 10000, keyword: 'alergia inmunologia', type: 'hospital' },
+    onDone
+  );
+}
+
+function _googleToClinica(place, userLat, userLng) {
+  const plLat   = place.geometry?.location?.lat();
+  const plLng   = place.geometry?.location?.lng();
+  const openNow = place.opening_hours?.isOpen?.();
+  const mapsUrl = place.place_id
+    ? `https://www.google.com/maps/place/?q=place_id:${place.place_id}`
+    : `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(place.name)}`;
+  return {
+    name: place.name,
+    dir: place.vicinity || '',
+    rating: place.rating || null,
+    reviews: place.user_ratings_total || null,
+    openNow, mapsUrl,
+    lat: plLat, lng: plLng,
+    _dist: (plLat && plLng) ? haversineKm(userLat, userLng, plLat, plLng) : 9999
+  };
+}
+
+function refreshClinicas() {
+  if (!userLocation || typeof userLocation !== 'object') return;
+  nearbyClinicas = null;
+  fetchNearbyClinicas(userLocation.lat, userLocation.lng);
 }
 
 function renderClinicas() {
@@ -50,36 +78,62 @@ function renderClinicas() {
   const title = document.getElementById('clinicasTitle');
   if (!grid) return;
 
-  const loc     = (typeof userLocation === 'object' && userLocation !== null) ? userLocation : null;
-  const cityKey = _clinicaCityKey(loc);
-
-  const near = cityKey ? CLINICAS.filter(c => c.cityKey === cityKey) : CLINICAS;
-  const far  = cityKey ? CLINICAS.filter(c => c.cityKey !== cityKey) : [];
+  const hasLocation = typeof userLocation === 'object' && userLocation !== null;
 
   if (title) {
-    title.textContent = cityKey
-      ? '🏥 Clínicas de alergias cerca de ti'
+    title.textContent = hasLocation
+      ? '🏥 Médicos y clínicas cerca de ti'
       : '🏥 Clínicas de alergias en la región';
   }
 
-  const renderCard = (c) => `
-    <div class="clinica-card">
-      <div class="clinica-card-icon">${c.icon}</div>
-      <span class="clinica-card-ciudad">${c.ciudad}</span>
-      <div class="clinica-card-name">${c.name}</div>
-      <div class="clinica-card-dir">${c.dir}</div>
-      <a class="clinica-card-wsap" href="${c.ctaUrl}" target="_blank">
-        ${c.ctaType === 'whatsapp' ? _WA_SVG : _CAL_SVG}
-        ${c.ctaLabel}
-      </a>
-    </div>`;
-
-  let html = near.map(renderCard).join('');
-  if (far.length > 0) {
-    html += `<div class="clinicas-otras-label">Otras ciudades</div>`;
-    html += far.map(renderCard).join('');
+  /* Sin ubicación */
+  if (!hasLocation) {
+    grid.innerHTML = `<p class="clinicas-sin-ubicacion">Activá tu ubicación para ver médicos y clínicas cercanas.</p>`;
+    return;
   }
 
+  /* Cargando */
+  if (nearbyClinicas === 'loading' || nearbyClinicas === null) {
+    grid.innerHTML = `
+      <div class="osm-loading-row" style="margin:16px 0">
+        <span class="osm-spinner"></span>
+        <span>Buscando médicos y clínicas…</span>
+      </div>`;
+    return;
+  }
+
+  /* Sin resultados */
+  if (!Array.isArray(nearbyClinicas) || nearbyClinicas.length === 0) {
+    grid.innerHTML = `
+      <p class="clinicas-sin-ubicacion">No se encontraron clínicas de alergias cerca de tu ubicación.</p>
+      <button class="nearby-refresh-btn" onclick="refreshClinicas()">🔄 Actualizar</button>`;
+    return;
+  }
+
+  const renderCard = (c) => {
+    const distBadge  = c._dist < 9000 ? `<span class="place-dist">${formatDist(c._dist)}</span>` : '';
+    const ratingHtml = c.rating
+      ? `<span style="font-size:11px;color:var(--text-hint)">★ ${c.rating}${c.reviews ? ` (${c.reviews})` : ''}</span>`
+      : '';
+    const openHtml = c.openNow === true
+      ? `<span style="font-size:10px;color:#4caf50;font-weight:600">Abierto</span>`
+      : c.openNow === false
+        ? `<span style="font-size:10px;color:var(--coral);font-weight:600">Cerrado</span>`
+        : '';
+    return `
+      <div class="clinica-card">
+        <div class="clinica-card-icon">🏥</div>
+        <div class="clinica-card-name">${c.name} ${distBadge}</div>
+        <div class="clinica-card-dir">${c.dir}</div>
+        <div style="display:flex;gap:8px;align-items:center;margin:4px 0 8px">${ratingHtml}${ratingHtml && openHtml ? ' · ' : ''}${openHtml}</div>
+        <a class="clinica-card-wsap" href="${c.mapsUrl}" target="_blank" rel="noopener">
+          ${_CAL_SVG} Ver en Google Maps
+        </a>
+      </div>`;
+  };
+
+  let html = nearbyClinicas.map(renderCard).join('');
+  html += `<button class="nearby-refresh-btn" onclick="refreshClinicas()">🔄 Actualizar resultados</button>`;
   grid.innerHTML = html;
 }
 

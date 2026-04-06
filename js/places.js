@@ -272,6 +272,8 @@ async function requestUserLocation() {
 
       /* Buscar lugares sin gluten cercanos vía Google Places */
       fetchNearbyGlutenFree(lat, lng);
+      /* Buscar clínicas y médicos cercanos */
+      if (typeof fetchNearbyClinicas === 'function') fetchNearbyClinicas(lat, lng);
 
       /* Re-renderizar secciones que dependen de la ubicación */
       if (document.getElementById('page-restaurantes')?.classList.contains('active')) renderRest();
@@ -355,6 +357,7 @@ function initGooglePlaces() {
   /* Si la ubicación ya fue detectada antes de que cargara la API, buscar ahora */
   if (userLocation && typeof userLocation === 'object' && userLocation.lat) {
     fetchNearbyGlutenFree(userLocation.lat, userLocation.lng);
+    if (typeof fetchNearbyClinicas === 'function') fetchNearbyClinicas(userLocation.lat, userLocation.lng);
   }
 }
 
