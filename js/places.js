@@ -381,7 +381,8 @@ function fetchNearbyGlutenFreeRestaurants(lat, lng) {
       nearbyRestaurantsOSM = results
         .map(place => googleToRestaurant(place, lat, lng))
         .filter(r => r.lat && r.lng)
-        .sort((a, b) => a._dist - b._dist);
+        .sort((a, b) => a._dist - b._dist)
+        .slice(0, 10);
     } else {
       console.warn('[CeliGO] Google Places restaurants status:', status);
       nearbyRestaurantsOSM = [];
@@ -396,25 +397,43 @@ function fetchNearbyGlutenFreeStores(lat, lng) {
   nearbyStoresOSM = 'loading';
   if (document.getElementById('page-tiendas')?.classList.contains('active')) renderStore();
 
-  const request = {
-    location: new google.maps.LatLng(lat, lng),
-    radius: 15000,
-    keyword: 'sin gluten',
-    type: 'store'
-  };
+  const location = new google.maps.LatLng(lat, lng);
+  const seen     = new Set(); /* evitar duplicados por place_id */
+  let   pending  = 2;         /* dos búsquedas en paralelo */
+  const collected = [];
 
-  googlePlacesService.nearbySearch(request, (results, status) => {
+  function onSearchDone(results, status) {
     if (status === google.maps.places.PlacesServiceStatus.OK && results?.length) {
-      nearbyStoresOSM = results
-        .map(place => googleToStore(place, lat, lng))
-        .filter(s => s.lat && s.lng)
-        .sort((a, b) => (a._dist ?? 9999) - (b._dist ?? 9999));
+      for (const place of results) {
+        if (place.place_id && !seen.has(place.place_id)) {
+          seen.add(place.place_id);
+          collected.push(googleToStore(place, lat, lng));
+        }
+      }
     } else {
       console.warn('[CeliGO] Google Places stores status:', status);
-      nearbyStoresOSM = [];
     }
-    if (document.getElementById('page-tiendas')?.classList.contains('active')) renderStore();
-  });
+    pending--;
+    if (pending === 0) {
+      nearbyStoresOSM = collected
+        .filter(s => s.lat && s.lng)
+        .sort((a, b) => (a._dist ?? 9999) - (b._dist ?? 9999))
+        .slice(0, 10);
+      if (document.getElementById('page-tiendas')?.classList.contains('active')) renderStore();
+    }
+  }
+
+  /* Búsqueda 1: supermercados y almacenes */
+  googlePlacesService.nearbySearch(
+    { location, radius: 15000, keyword: 'sin gluten', type: 'grocery_or_supermarket' },
+    onSearchDone
+  );
+
+  /* Búsqueda 2: tiendas naturistas y de salud */
+  googlePlacesService.nearbySearch(
+    { location, radius: 15000, keyword: 'sin gluten', type: 'health' },
+    onSearchDone
+  );
 }
 
 function googleToRestaurant(place, userLat, userLng) {
