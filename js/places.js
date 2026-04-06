@@ -702,7 +702,7 @@ function renderRest() {
     }
   }
 
-  /* ── Sección OSM "Descubiertos cerca de ti" ── */
+  /* ── Sección Google Places "Descubiertos cerca de ti" ── */
   if (typeof userLocation === 'object' && userLocation !== null) {
     if (nearbyRestaurantsOSM === 'loading') {
       html += `<div class="other-rest-label nearby-osm-label">🔍 Buscando más lugares sin gluten…</div>
@@ -716,9 +716,18 @@ function renderRest() {
         html += newOnes.map(r => renderOSMPlaceCard(r)).join('');
       }
     }
+    if (nearbyRestaurantsOSM !== 'loading') {
+      html += `<button class="nearby-refresh-btn" onclick="refreshNearbyRestaurants()">🔄 Actualizar resultados</button>`;
+    }
   }
 
   el.innerHTML = html;
+}
+
+function refreshNearbyRestaurants() {
+  if (!userLocation || typeof userLocation !== 'object') return;
+  nearbyRestaurantsOSM = null;
+  fetchNearbyGlutenFreeRestaurants(userLocation.lat, userLocation.lng);
 }
 
 /* ══ TARJETA TIENDA DESTACADA ══ */
@@ -816,7 +825,7 @@ function renderStore() {
     `).join('');
   }
 
-  /* ── Sección OSM "Descubiertos cerca de ti" ── */
+  /* ── Sección Google Places "Descubiertos cerca de ti" ── */
   if (typeof userLocation === 'object' && userLocation !== null) {
     if (nearbyStoresOSM === 'loading') {
       html += `<div class="other-rest-label nearby-osm-label">🔍 Buscando más tiendas sin gluten…</div>
@@ -830,9 +839,18 @@ function renderStore() {
         html += newOnes.map(s => renderOSMPlaceCard(s)).join('');
       }
     }
+    if (nearbyStoresOSM !== 'loading') {
+      html += `<button class="nearby-refresh-btn" onclick="refreshNearbyStores()">🔄 Actualizar resultados</button>`;
+    }
   }
 
   el.innerHTML = html;
+}
+
+function refreshNearbyStores() {
+  if (!userLocation || typeof userLocation !== 'object') return;
+  nearbyStoresOSM = null;
+  fetchNearbyGlutenFreeStores(userLocation.lat, userLocation.lng);
 }
 
 /* ══ ESTILOS TARJETAS DESTACADAS ══ */
@@ -1052,6 +1070,18 @@ function renderStore() {
     .fc-img-wrap { width: 64px; height: 64px; border-radius: 14px; overflow: hidden; flex-shrink: 0; background: rgba(255,255,255,0.06); }
     .fc-img { width: 100%; height: 100%; object-fit: cover; display: block; }
     .fc-emoji-fb { font-size: 44px; line-height: 64px; display: block; text-align: center; }
+
+    /* ── Botón actualizar resultados ── */
+    .nearby-refresh-btn {
+      display: block; width: 100%; margin: 20px 0 8px;
+      padding: 12px; border-radius: 12px; border: none;
+      background: rgba(255,255,255,0.06); color: var(--text-hint);
+      font-size: 13px; font-weight: 600; letter-spacing: 0.02em;
+      cursor: pointer; transition: background 0.2s, color 0.2s;
+    }
+    .nearby-refresh-btn:active {
+      background: rgba(255,255,255,0.12); color: var(--text-primary);
+    }
   `;
   document.head.appendChild(style);
 })();
