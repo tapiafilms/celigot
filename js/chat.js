@@ -29,11 +29,16 @@ function fetchNearbyClinicas(lat, lng) {
     }
     pending--;
     if (pending === 0) {
-      nearbyClinicas = collected
-        .filter(c => c.lat && c.lng)
-        .sort((a, b) => (a._dist ?? 9999) - (b._dist ?? 9999))
-        .slice(0, 8);
-      if (document.getElementById('page-asistente')?.classList.contains('active')) renderClinicas();
+      if (collected.length > 0) {
+        nearbyClinicas = collected
+          .filter(c => c.lat && c.lng)
+          .sort((a, b) => (a._dist ?? 9999) - (b._dist ?? 9999))
+          .slice(0, 8);
+        if (document.getElementById('page-asistente')?.classList.contains('active')) renderClinicas();
+      } else {
+        console.warn('[CeliGO] Google Places clinicas sin resultados — usando Overpass');
+        _fetchClinicasOverpass(lat, lng);
+      }
     }
   }
 
@@ -65,6 +70,45 @@ function _googleToClinica(place, userLat, userLng) {
     lat: plLat, lng: plLng,
     _dist: (plLat && plLng) ? haversineKm(userLat, userLng, plLat, plLng) : 9999
   };
+}
+
+function _fetchClinicasOverpass(lat, lng) {
+  const q = `[out:json][timeout:30];
+(
+  node["amenity"~"clinic|hospital|doctors"]["name"~"alergia|inmunolog|celiac|digestiv|gastro",i](around:15000,${lat},${lng});
+  way["amenity"~"clinic|hospital"]["name"~"alergia|inmunolog|celiac|digestiv|gastro",i](around:15000,${lat},${lng});
+  node["healthcare"="speciality"]["speciality"~"allergy|immunology|gastroenterology",i](around:15000,${lat},${lng});
+  node["amenity"~"clinic|hospital"]["name"~"cl\u00ednica|hospital|centro m\u00e9dico",i](around:10000,${lat},${lng});
+  way["amenity"~"clinic|hospital"]["name"~"cl\u00ednica|hospital|centro m\u00e9dico",i](around:10000,${lat},${lng});
+);out body;>;out skel qt;`;
+  fetch('https://overpass-api.de/api/interpreter', { method: 'POST', body: q })
+    .then(r => r.json())
+    .then(data => {
+      nearbyClinicas = (data.elements || [])
+        .filter(el => el.tags?.name)
+        .map(el => {
+          const elLat = el.lat || el.center?.lat;
+          const elLng = el.lon || el.center?.lon;
+          const t = el.tags || {};
+          const mapsUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(t.name)}`;
+          return {
+            name: t.name,
+            dir: [t['addr:street'], t['addr:housenumber']].filter(Boolean).join(' ') || '',
+            rating: null, reviews: null, openNow: undefined,
+            mapsUrl, lat: elLat, lng: elLng,
+            _dist: (elLat && elLng) ? haversineKm(lat, lng, elLat, elLng) : 9999
+          };
+        })
+        .filter(c => c.lat && c.lng)
+        .sort((a, b) => (a._dist ?? 9999) - (b._dist ?? 9999))
+        .slice(0, 8);
+      if (document.getElementById('page-asistente')?.classList.contains('active')) renderClinicas();
+    })
+    .catch(err => {
+      console.warn('[CeliGO] Overpass clinicas error:', err);
+      nearbyClinicas = [];
+      if (document.getElementById('page-asistente')?.classList.contains('active')) renderClinicas();
+    });
 }
 
 function refreshClinicas() {

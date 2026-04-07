@@ -386,12 +386,61 @@ function fetchNearbyGlutenFreeRestaurants(lat, lng) {
         .filter(r => r.lat && r.lng)
         .sort((a, b) => a._dist - b._dist)
         .slice(0, 10);
+      if (document.getElementById('page-restaurantes')?.classList.contains('active')) renderRest();
     } else {
-      console.warn('[CeliGO] Google Places restaurants status:', status);
-      nearbyRestaurantsOSM = [];
+      console.warn('[CeliGO] Google Places restaurants status:', status, '— usando Overpass');
+      _fetchRestaurantsOverpass(lat, lng); /* Overpass callback invoca renderRest */
     }
-    if (document.getElementById('page-restaurantes')?.classList.contains('active')) renderRest();
   });
+}
+
+function _fetchRestaurantsOverpass(lat, lng) {
+  const q = `[out:json][timeout:30];
+(
+  node["amenity"~"restaurant|cafe|fast_food|bakery"]["diet:gluten_free"="yes"](around:15000,${lat},${lng});
+  way["amenity"~"restaurant|cafe|fast_food|bakery"]["diet:gluten_free"="yes"](around:15000,${lat},${lng});
+  node["amenity"~"restaurant|cafe|fast_food|bakery"]["name"~"gluten|celiaco|celiac",i](around:15000,${lat},${lng});
+  way["amenity"~"restaurant|cafe|fast_food|bakery"]["name"~"gluten|celiaco|celiac",i](around:15000,${lat},${lng});
+);out body;>;out skel qt;`;
+  fetch('https://overpass-api.de/api/interpreter', { method: 'POST', body: q })
+    .then(r => r.json())
+    .then(data => {
+      nearbyRestaurantsOSM = (data.elements || [])
+        .filter(el => el.tags?.name)
+        .map(el => _overpassToRestaurant(el, lat, lng))
+        .filter(r => r.lat && r.lng)
+        .sort((a, b) => a._dist - b._dist)
+        .slice(0, 10);
+      if (document.getElementById('page-restaurantes')?.classList.contains('active')) renderRest();
+    })
+    .catch(err => {
+      console.warn('[CeliGO] Overpass restaurants error:', err);
+      nearbyRestaurantsOSM = [];
+      if (document.getElementById('page-restaurantes')?.classList.contains('active')) renderRest();
+    });
+}
+
+function _overpassToRestaurant(el, uLat, uLng) {
+  const lat = el.lat || el.center?.lat;
+  const lng = el.lon || el.center?.lon;
+  const t   = el.tags || {};
+  const aMap = { restaurant: 'RESTAURANTE', cafe: 'CAFÉ', fast_food: 'PARA LLEVAR', bakery: 'PANADERÍA' };
+  const iMap = { restaurant: '🍽️', cafe: '☕', fast_food: '🥡', bakery: '🥖' };
+  const am   = t.amenity || 'restaurant';
+  return {
+    _source: 'osm',
+    name: t.name,
+    type: (aMap[am] || 'RESTAURANTE') + ' · SIN GLUTEN',
+    icon: iMap[am] || '🍴',
+    lat, lng, cert: false, rating: null, reviews: null,
+    desc: 'Lugar con opciones sin gluten. Verifica antes de visitar.',
+    tags: ['Sin gluten', 'OpenStreetMap'],
+    address: [t['addr:street'], t['addr:housenumber']].filter(Boolean).join(' ') || '',
+    tel: t.phone || t['contact:phone'] || '',
+    web: t.website || t['contact:website'] || '',
+    horario: t.opening_hours || '',
+    _dist: (lat && lng) ? haversineKm(uLat, uLng, lat, lng) : 9999
+  };
 }
 
 function fetchNearbyGlutenFreeStores(lat, lng) {
@@ -418,11 +467,16 @@ function fetchNearbyGlutenFreeStores(lat, lng) {
     }
     pending--;
     if (pending === 0) {
-      nearbyStoresOSM = collected
-        .filter(s => s.lat && s.lng)
-        .sort((a, b) => (a._dist ?? 9999) - (b._dist ?? 9999))
-        .slice(0, 10);
-      if (document.getElementById('page-tiendas')?.classList.contains('active')) renderStore();
+      if (collected.length > 0) {
+        nearbyStoresOSM = collected
+          .filter(s => s.lat && s.lng)
+          .sort((a, b) => (a._dist ?? 9999) - (b._dist ?? 9999))
+          .slice(0, 10);
+        if (document.getElementById('page-tiendas')?.classList.contains('active')) renderStore();
+      } else {
+        console.warn('[CeliGO] Google Places stores sin resultados — usando Overpass');
+        _fetchStoresOverpass(lat, lng);
+      }
     }
   }
 
@@ -510,6 +564,59 @@ function googleToStore(place, userLat, userLng) {
     tel: '', web: '',
     _placeId: place.place_id,
     _dist: (plLat && plLng) ? haversineKm(userLat, userLng, plLat, plLng) : 9999
+  };
+}
+
+function _fetchStoresOverpass(lat, lng) {
+  const q = `[out:json][timeout:30];
+(
+  node["shop"~"supermarket|convenience|health_food|organic|deli"]["diet:gluten_free"="yes"](around:15000,${lat},${lng});
+  way["shop"~"supermarket|convenience|health_food|organic|deli"]["diet:gluten_free"="yes"](around:15000,${lat},${lng});
+  node["shop"~"health_food|organic|deli"]["name"~"gluten|celiaco|celiac|natural",i](around:15000,${lat},${lng});
+  way["shop"~"health_food|organic|deli"]["name"~"gluten|celiaco|celiac|natural",i](around:15000,${lat},${lng});
+  node["amenity"="pharmacy"]["diet:gluten_free"="yes"](around:15000,${lat},${lng});
+);out body;>;out skel qt;`;
+  fetch('https://overpass-api.de/api/interpreter', { method: 'POST', body: q })
+    .then(r => r.json())
+    .then(data => {
+      nearbyStoresOSM = (data.elements || [])
+        .filter(el => el.tags?.name)
+        .map(el => _overpassToStore(el, lat, lng))
+        .filter(s => s.lat && s.lng)
+        .sort((a, b) => (a._dist ?? 9999) - (b._dist ?? 9999))
+        .slice(0, 10);
+      if (document.getElementById('page-tiendas')?.classList.contains('active')) renderStore();
+    })
+    .catch(err => {
+      console.warn('[CeliGO] Overpass stores error:', err);
+      nearbyStoresOSM = [];
+      if (document.getElementById('page-tiendas')?.classList.contains('active')) renderStore();
+    });
+}
+
+function _overpassToStore(el, uLat, uLng) {
+  const lat = el.lat || el.center?.lat;
+  const lng = el.lon || el.center?.lon;
+  const t   = el.tags || {};
+  const sMap = { supermarket: 'SUPERMERCADO · SIN GLUTEN', health_food: 'TIENDA NATURISTA · SIN GLUTEN',
+                 organic: 'TIENDA ORGÁNICA · SIN GLUTEN', deli: 'DELI · SIN GLUTEN',
+                 convenience: 'MINIMARKET · SIN GLUTEN', pharmacy: 'FARMACIA · SIN GLUTEN' };
+  const iMap = { supermarket: '🏬', health_food: '🌿', organic: '🌱', deli: '🧀', convenience: '🏪', pharmacy: '💊' };
+  const shop = t.shop || t.amenity || 'store';
+  return {
+    _source: 'osm',
+    name: t.name,
+    type: sMap[shop] || 'TIENDA · SIN GLUTEN',
+    icon: iMap[shop] || '🛒',
+    lat, lng,
+    cat: (shop === 'supermarket') ? 'super' : 'especializada',
+    cert: false, rating: null, reviews: null,
+    desc: 'Productos sin gluten disponibles. Verifica antes de visitar.',
+    tags: ['Sin gluten', 'OpenStreetMap'],
+    address: [t['addr:street'], t['addr:housenumber']].filter(Boolean).join(' ') || '',
+    tel: t.phone || t['contact:phone'] || '',
+    web: t.website || t['contact:website'] || '',
+    _dist: (lat && lng) ? haversineKm(uLat, uLng, lat, lng) : 9999
   };
 }
 
@@ -709,13 +816,14 @@ function renderRest() {
   if (typeof userLocation === 'object' && userLocation !== null) {
     if (nearbyRestaurantsOSM === 'loading') {
       html += `<div class="other-rest-label nearby-osm-label">🔍 Buscando más lugares sin gluten…</div>
-               <div class="osm-loading-row"><span class="osm-spinner"></span><span>Consultando Google Places…</span></div>`;
+               <div class="osm-loading-row"><span class="osm-spinner"></span><span>Buscando lugares cercanos…</span></div>`;
     } else if (Array.isArray(nearbyRestaurantsOSM) && nearbyRestaurantsOSM.length > 0) {
       const existing = new Set(restaurants.map(r => r.name.toLowerCase()));
       const newOnes  = nearbyRestaurantsOSM.filter(r => !existing.has(r.name.toLowerCase()));
       if (newOnes.length > 0) {
+        const srcLabel = newOnes[0]?._source === 'osm' ? 'OpenStreetMap' : 'Google Places';
         html += `<div class="other-rest-label nearby-osm-label">🗺️ Descubiertos cerca de ti</div>`;
-        html += `<p class="osm-source-note">Fuente: Google Places — verifica antes de visitar</p>`;
+        html += `<p class="osm-source-note">Fuente: ${srcLabel} — verifica antes de visitar</p>`;
         html += newOnes.map(r => renderOSMPlaceCard(r)).join('');
       }
     }
@@ -832,13 +940,14 @@ function renderStore() {
   if (typeof userLocation === 'object' && userLocation !== null) {
     if (nearbyStoresOSM === 'loading') {
       html += `<div class="other-rest-label nearby-osm-label">🔍 Buscando más tiendas sin gluten…</div>
-               <div class="osm-loading-row"><span class="osm-spinner"></span><span>Consultando Google Places…</span></div>`;
+               <div class="osm-loading-row"><span class="osm-spinner"></span><span>Buscando lugares cercanos…</span></div>`;
     } else if (Array.isArray(nearbyStoresOSM) && nearbyStoresOSM.length > 0) {
       const existing = new Set(stores.map(s => s.name.toLowerCase()));
       const newOnes  = nearbyStoresOSM.filter(s => !existing.has(s.name.toLowerCase()));
       if (newOnes.length > 0) {
+        const srcLabel = newOnes[0]?._source === 'osm' ? 'OpenStreetMap' : 'Google Places';
         html += `<div class="other-rest-label nearby-osm-label">🗺️ Descubiertos cerca de ti</div>`;
-        html += `<p class="osm-source-note">Fuente: Google Places — verifica antes de visitar</p>`;
+        html += `<p class="osm-source-note">Fuente: ${srcLabel} — verifica antes de visitar</p>`;
         html += newOnes.map(s => renderOSMPlaceCard(s)).join('');
       }
     }
