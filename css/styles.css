@@ -152,6 +152,7 @@ body > .topbar { display: none; }
 
 /* ── PAGES ── */
 .page { display:none; padding:20px; }
+#page-home { padding: 0; }
 #page-restaurantes { padding:0; }
 #page-restaurantes .search-bar,
 #page-restaurantes .filter-row,
@@ -1981,8 +1982,23 @@ body > .topbar { display: none; }
   position: relative;
   background: #111a10;
   overflow: hidden;
-  padding: 48px 24px 36px;
+  padding: 0;
   text-align: center;
+  width: 100%;
+  margin: 0;
+}
+
+.home-hero-video {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  z-index: 0;
+  opacity: 0.3;
+  -webkit-mask-image: linear-gradient(to bottom, rgba(0,0,0,1) 0%, rgba(0,0,0,0.8) 60%, rgba(0,0,0,0) 100%);
+  mask-image: linear-gradient(to bottom, rgba(0,0,0,1) 0%, rgba(0,0,0,0.8) 60%, rgba(0,0,0,0) 100%);
 }
 
 .home-hero-glow {
@@ -2000,6 +2016,7 @@ body > .topbar { display: none; }
 .home-hero-content {
   position: relative;
   z-index: 1;
+  padding: 48px 24px 36px;
 }
 
 .home-logo {
