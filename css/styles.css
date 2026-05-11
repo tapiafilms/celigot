@@ -155,6 +155,12 @@ body > .topbar { display: none; }
 .page { display:none; padding:20px; }
 #page-home { padding: 0; }
 #page-restaurantes { padding:0; }
+
+#page-scanner,
+#page-asistente,
+#page-descubre {
+  padding-top: calc(20px + env(safe-area-inset-top) + 40px);
+}
 #page-restaurantes .search-bar,
 #page-restaurantes .filter-row,
 #page-restaurantes #restList { padding-left:16px; padding-right:16px; }
@@ -1085,6 +1091,9 @@ body > .topbar { display: none; }
   .app-column .app-pages::-webkit-scrollbar-thumb { background: rgba(78,107,74,0.3); border-radius: 4px; }
 
   .app-column .page { padding: 16px; }
+  .app-column #page-scanner,
+  .app-column #page-asistente,
+  .app-column #page-descubre { padding-top: 16px; }
   .app-column #page-restaurantes { padding: 0; }
   .app-column #page-restaurantes .search-bar,
   .app-column #page-restaurantes .filter-row,
