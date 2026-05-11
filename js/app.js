@@ -18,6 +18,64 @@ const PRESET_ALLERGIES = [
 let selectedAllergies = new Set();
 let customAllergies   = [];
 
+/* ══ HOME — navegar al home post-login ══ */
+function goToHome() {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+
+  const pageEl = document.getElementById('page-home');
+  if (pageEl) pageEl.classList.add('active');
+
+  /* Actualizar saludo y strip de alergias */
+  _refreshHomeUI();
+
+  const appPages = document.querySelector('.app-pages');
+  if (appPages && window.innerWidth >= 900) {
+    appPages.scrollTop = 0;
+  } else {
+    window.scrollTo({ top: 0, behavior: 'instant' });
+  }
+}
+
+/* Actualizar contenido dinámico del Home */
+function _refreshHomeUI() {
+  /* Saludo personalizado */
+  const greetingEl = document.getElementById('homeGreeting');
+  if (greetingEl) {
+    let nombre = '';
+    try {
+      const p = currentProfile || JSON.parse(localStorage.getItem('celigo_profile_v1') || '{}');
+      nombre = p.nombre || '';
+    } catch(e) {}
+    const hora = new Date().getHours();
+    const saludo = hora < 12 ? 'Buenos días' : hora < 19 ? 'Buenas tardes' : 'Buenas noches';
+    greetingEl.textContent = nombre ? `${saludo}, ${nombre} 👋` : `${saludo} 👋`;
+  }
+
+  /* Strip de alergias activas */
+  const strip  = document.getElementById('homeAllergyStrip');
+  const stripT = document.getElementById('homeAllergyText');
+  if (strip && stripT) {
+    try {
+      const p = currentProfile || JSON.parse(localStorage.getItem('celigo_profile_v1') || '{}');
+      const alergias = Array.isArray(p.alergias) ? p.alergias : [];
+      const condicion = p.condicion || '';
+      if (condicion || alergias.length > 0) {
+        const parts = [];
+        if (condicion) parts.push(condicion);
+        if (alergias.length > 0) parts.push(`${alergias.length} alergia${alergias.length > 1 ? 's' : ''} activa${alergias.length > 1 ? 's' : ''}`);
+        stripT.textContent = parts.join(' · ');
+        strip.style.display = 'flex';
+      } else {
+        strip.style.display = 'none';
+      }
+    } catch(e) {
+      strip.style.display = 'none';
+    }
+  }
+}
+
 /* ══ NAVEGACIÓN ══ */
 function switchTab(name, el, fromNav = false) {
   document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
@@ -40,11 +98,33 @@ function switchTab(name, el, fromNav = false) {
     initDescubreFeed();
   }
 
-  /* Al entrar a RESTAURANTES: actualizar banner de ubicación */
-  if (name === 'restaurantes') {
+  /* Al entrar a RESTAURANTES o TIENDAS: pedir/actualizar ubicación */
+  if (name === 'restaurantes' || name === 'tiendas') {
     if (typeof updateLocationBanner === 'function') updateLocationBanner();
-    /* Si la ubicación aún no se solicitó, pedirla ahora */
     if (typeof requestUserLocation === 'function') requestUserLocation();
+    /* Si la ubicación ya estaba conocida, fetchNearbyGlutenFree no se llama desde
+       requestUserLocation (que retorna early). Lo llamamos directamente si hace falta. */
+    if (typeof userLocation === 'object' && userLocation !== null &&
+        typeof fetchNearbyGlutenFree === 'function' &&
+        (nearbyRestaurantsOSM === null || nearbyStoresOSM === null)) {
+      fetchNearbyGlutenFree(userLocation.lat, userLocation.lng);
+    }
+  }
+
+  /* Al entrar a ASISTENTE: renderizar clínicas y pedir ubicación si falta */
+  if (name === 'asistente') {
+    if (typeof renderClinicas === 'function') renderClinicas();
+    if (typeof requestUserLocation === 'function') requestUserLocation();
+    /* Si ya hay ubicación, lanzar búsquedas pendientes */
+    if (typeof userLocation === 'object' && userLocation !== null) {
+      if (typeof fetchNearbyGlutenFree === 'function' &&
+          (nearbyRestaurantsOSM === null || nearbyStoresOSM === null)) {
+        fetchNearbyGlutenFree(userLocation.lat, userLocation.lng);
+      }
+      if (typeof fetchNearbyClinicas === 'function' && nearbyClinicas === null) {
+        fetchNearbyClinicas(userLocation.lat, userLocation.lng);
+      }
+    }
   }
 
   const appPages = document.querySelector('.app-pages');
@@ -379,6 +459,35 @@ function updateTopbarAvatar() {
   }
 }
 
+/* ══ INSTALAR APP — detectar plataforma y mostrar pasos ══ */
+function initInstallCard() {
+  const card = document.getElementById('installAppCard');
+  if (!card) return;
+
+  const ua = navigator.userAgent || '';
+  const isIOS     = /iphone|ipad|ipod/i.test(ua);
+  const isAndroid = /android/i.test(ua);
+
+  // ¿Ya está corriendo como PWA instalada?
+  const isStandalone =
+    window.matchMedia('(display-mode: standalone)').matches ||
+    window.navigator.standalone === true;
+
+  if (isStandalone) {
+    document.getElementById('installAlreadyInstalled').style.display = 'block';
+    return;
+  }
+
+  if (isIOS) {
+    document.getElementById('installStepsIOS').style.display = 'flex';
+  } else if (isAndroid) {
+    document.getElementById('installStepsAndroid').style.display = 'flex';
+  } else {
+    // Desktop o navegador no reconocido
+    card.style.display = 'none'; // Ocultar en desktop
+  }
+}
+
 /* ══ INIT ══ */
 document.addEventListener('DOMContentLoaded', () => {
   injectProfileStyles();
@@ -391,4 +500,19 @@ document.addEventListener('DOMContentLoaded', () => {
   updateProfileHero();
   renderDescubrePage();
   updateTopbarAvatar();
+  lockPortrait();
+  initInstallCard();
 });
+
+/* ══ Bloqueo de orientación vertical ══
+   1. Screen Orientation API  → Chrome/Android (PWA y navegador)
+   2. Overlay CSS             → fallback para iOS/Safari              */
+function lockPortrait() {
+  /* Intento con la API (requiere que la página esté en primer plano) */
+  if (screen?.orientation?.lock) {
+    screen.orientation.lock('portrait').catch(() => {
+      /* Silencioso: el navegador puede rechazarlo fuera de PWA instalada */
+    });
+  }
+  /* El overlay CSS ya se activa automáticamente por @media (orientation: landscape) */
+}

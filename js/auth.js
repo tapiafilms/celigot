@@ -130,6 +130,10 @@ function _refreshAllUI() {
   if (typeof requestUserLocation === 'function') {
     requestUserLocation();
   }
+  /* ── Navegar al Home tras autenticación exitosa ── */
+  if (typeof goToHome === 'function') {
+    goToHome();
+  }
 }
 
 /* ════════════════════════════════════════════════════
@@ -144,7 +148,7 @@ function showAuthModal() {
     <div class="auth-container">
 
       <div class="auth-logo">
-        <img src="img/logo-full.png" alt="CeliGO">
+        <img src="img/logo-full.png" alt="CeliGOT">
       </div>
 
       <h1 class="auth-title">BIENVENIDO/A</h1>
@@ -407,7 +411,7 @@ async function handleProfilePhoto(input) {
   } else {
     /* ── Sin sesión: comprimir y guardar como base64 ── */
     try {
-      const blob   = await compressImage(file, 420, 0.75);
+      const blob   = await compressImage(file, 800, 0.92);
       const reader = new FileReader();
       reader.onload = (e) => {
         const b64 = e.target.result;

@@ -3,18 +3,18 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<title>CeliGO Viña — Tu guía alimentaria</title>
+<title>CeliGOT Viña — Tu guía alimentaria</title>
 
 <!-- ═══ PWA META TAGS ═══ -->
 <meta name="description" content="Guía alimentaria para celíacos en Viña del Mar. Escáner de etiquetas con IA, asistente, restaurantes y tiendas sin gluten.">
-<meta name="application-name" content="CeliGO">
+<meta name="application-name" content="CeliGOT">
 <meta name="theme-color" content="#1C2419">
 <meta name="mobile-web-app-capable" content="yes">
 
 <!-- iOS / Safari -->
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="CeliGO">
+<meta name="apple-mobile-web-app-title" content="CeliGOT">
 <link rel="apple-touch-icon" href="img/apple-touch-icon.png">
 
 <!-- Iconos estándar -->
@@ -26,7 +26,7 @@
 
 <!-- Open Graph (para compartir) -->
 <meta property="og:type" content="website">
-<meta property="og:title" content="CeliGO — Guía alimentaria sin gluten">
+<meta property="og:title" content="CeliGOT — Guía alimentaria sin gluten">
 <meta property="og:description" content="Escáner de etiquetas IA, restaurantes y tiendas sin gluten en Viña del Mar.">
 <meta property="og:image" content="img/icon-512.png">
 
@@ -39,6 +39,16 @@
 </head>
 <body>
 
+<!-- OVERLAY: rotar a vertical -->
+<div id="rotate-overlay">
+  <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+    <rect x="2" y="5" width="14" height="20" rx="2"/>
+    <path d="M19 3l3 3-3 3M22 6H16"/>
+  </svg>
+  <p>Rotá tu dispositivo</p>
+  <span>Esta app está optimizada para modo vertical</span>
+</div>
+
 <!-- AVATAR FIJO — esquina superior izquierda, siempre visible -->
 <button class="profile-avatar-fixed" id="profileAvatarFixed" onclick="goToProfile()" title="Mi perfil">
   <img id="fixedAvatarImg" alt="Foto de perfil" style="display:none;">
@@ -48,8 +58,8 @@
 <!-- TOP BAR -->
 <div class="topbar">
   <div class="topbar-head">
-    <div class="logo">
-      <img src="img/logo-full.png" alt="CeliGO">
+    <div class="logo" onclick="goToHome()" style="cursor:pointer">
+      <img src="img/logo-full.png" alt="CeliGOT">
     </div>
     <!-- Avatar de perfil — click abre el panel de perfil -->
     <button class="topbar-avatar" id="topbarAvatar" onclick="openProfilePanel()" title="Mi perfil">
@@ -58,7 +68,7 @@
     </button>
   </div>
   <div class="tabs">
-      <div class="tab active" onclick="switchTab('restaurantes',this)">
+      <div class="tab" onclick="switchTab('restaurantes',this)">
         <svg viewBox="0 0 24 24"><path d="M18 8h1a4 4 0 010 8h-1M2 8h16v9a4 4 0 01-4 4H6a4 4 0 01-4-4V8zM6 1v3M10 1v3M14 1v3"/></svg>
         COMER
       </div>
@@ -90,10 +100,10 @@
   <div class="app-topbar">
     <div class="topbar">
       <div class="topbar-head">
-        <div class="logo"><img src="img/logo-full.png" alt="CeliGO"></div>
+        <div class="logo" onclick="goToHome()" style="cursor:pointer"><img src="img/logo-full.png" alt="CeliGOT"></div>
       </div>
       <div class="tabs">
-        <div class="tab active" onclick="switchTab('restaurantes',this)">
+        <div class="tab" onclick="switchTab('restaurantes',this)">
           <svg viewBox="0 0 24 24"><path d="M18 8h1a4 4 0 010 8h-1M2 8h16v9a4 4 0 01-4 4H6a4 4 0 01-4-4V8zM6 1v3M10 1v3M14 1v3"/></svg>
           COMER
         </div>
@@ -120,46 +130,132 @@
   <!-- Área scrollable de las páginas -->
   <div class="app-pages">
 
-<div class="page" id="page-scanner">
+<!-- ══ HOME — pantalla de bienvenida post-login ══ -->
+<div class="page active" id="page-home">
 
-  <!-- HERO ESCÁNER -->
-  <div class="rest-hero scanner-hero">
-    <div class="rest-hero-img">
-      <img src="img/scanner.jpg" alt="Escanea la etiqueta">
-      <div class="rest-hero-overlay"></div>
-    </div>
-
-    <div class="rest-hero-logo">
-      <img src="img/ce-logo.png" alt="ce">
-    </div>
-
-    <div class="rest-hero-content">
-      <div class="rest-hero-top">
-        <span class="rest-badge-destacado">ESCÁNER IA</span>
-        <div class="rest-hero-rating">
-          <span class="rest-stars-gold">★★★★★</span>
-          <span class="rest-rating-val">IA</span>
-          <div class="rest-rating-count">Análisis al instante</div>
-        </div>
-      </div>
-
-      <h1 class="rest-hero-name">Escanea la<br>etiqueta</h1>
-
-      <p class="rest-hero-desc">Foto o texto — la IA detecta gluten y tus alergias en segundos. Analiza ingredientes, nombres ocultos y contaminación cruzada.</p>
-
-      <div class="rest-hero-horario">
-        <svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
-        Disponible 24/7 · Sin conexión requerida
-      </div>
-
-      <div class="rest-hero-tags">
-        <span class="rest-hero-tag">Foto o texto</span>
-        <span class="rest-hero-tag">Detección gluten</span>
-        <span class="rest-hero-tag">Tus alergias</span>
-        <span class="rest-hero-tag">Nombres ocultos</span>
-      </div>
+  <!-- HERO SUPERIOR -->
+  <div class="home-hero">
+    <div class="home-hero-glow"></div>
+    <div class="home-hero-content">
+      <img src="img/logo-full.png" alt="CeliGOT" class="home-logo">
+      <p class="home-greeting" id="homeGreeting">Bienvenido/a 👋</p>
+      <h1 class="home-headline">Tu guía inteligente<br>para comer seguro</h1>
+      <p class="home-tagline">Escanea etiquetas, consulta con IA y encuentra lugares confiables en Viña del Mar y Concón.</p>
     </div>
   </div>
+
+  <!-- STRIP DE ALERGIAS ACTIVAS -->
+  <div class="home-allergy-strip" id="homeAllergyStrip" style="display:none">
+    <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+    <span id="homeAllergyText">Perfil activo</span>
+    <button onclick="openProfilePanel()" class="home-allergy-edit">Editar</button>
+  </div>
+
+  <!-- GRID PRINCIPAL 2×2 -->
+  <div class="home-grid">
+
+    <button class="home-card home-card--scanner" onclick="switchTab('scanner',null)">
+      <div class="home-card-glow"></div>
+      <div class="home-card-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M3 7V5a2 2 0 012-2h2M17 3h2a2 2 0 012 2v2M21 17v2a2 2 0 01-2 2h-2M7 21H5a2 2 0 01-2-2v-2"/>
+          <circle cx="12" cy="12" r="3"/>
+          <path d="M12 9v.01M12 15v.01"/>
+        </svg>
+      </div>
+      <div class="home-card-label">
+        <span class="home-card-title">Escáner</span>
+        <span class="home-card-sub">de etiquetas con IA</span>
+      </div>
+      <div class="home-card-arrow">→</div>
+    </button>
+
+    <button class="home-card home-card--chat" onclick="switchTab('asistente',null)">
+      <div class="home-card-glow"></div>
+      <div class="home-card-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/>
+          <path d="M8 10h8M8 13h5"/>
+        </svg>
+      </div>
+      <div class="home-card-label">
+        <span class="home-card-title">Consultas</span>
+        <span class="home-card-sub">con IA</span>
+      </div>
+      <div class="home-card-arrow">→</div>
+    </button>
+
+    <button class="home-card home-card--restaurantes" onclick="switchTab('restaurantes',null)">
+      <div class="home-card-glow"></div>
+      <div class="home-card-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M18 8h1a4 4 0 010 8h-1M2 8h16v9a4 4 0 01-4 4H6a4 4 0 01-4-4V8zM6 1v3M10 1v3M14 1v3"/>
+        </svg>
+      </div>
+      <div class="home-card-label">
+        <span class="home-card-title">Restaurantes</span>
+        <span class="home-card-sub">seguros</span>
+      </div>
+      <div class="home-card-arrow">→</div>
+    </button>
+
+    <button class="home-card home-card--tiendas" onclick="switchTab('tiendas',null)">
+      <div class="home-card-glow"></div>
+      <div class="home-card-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4zM3 6h18M16 10a4 4 0 01-8 0"/>
+        </svg>
+      </div>
+      <div class="home-card-label">
+        <span class="home-card-title">Tiendas</span>
+        <span class="home-card-sub">confiables</span>
+      </div>
+      <div class="home-card-arrow">→</div>
+    </button>
+
+  </div><!-- /home-grid -->
+
+  <!-- CARD DESCUBRE — ancho completo -->
+  <div class="home-grid-full">
+    <button class="home-card home-card--descubre" onclick="switchTab('descubre',null)">
+      <div class="home-card-glow"></div>
+      <div class="home-card-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="3" y="3" width="7" height="7" rx="1"/>
+          <rect x="14" y="3" width="7" height="7" rx="1"/>
+          <rect x="3" y="14" width="7" height="7" rx="1"/>
+          <rect x="14" y="14" width="7" height="7" rx="1"/>
+        </svg>
+      </div>
+      <div class="home-card-label">
+        <span class="home-card-title">Descubre</span>
+        <span class="home-card-sub">comunidad y novedades sin gluten</span>
+      </div>
+      <div class="home-card-arrow">→</div>
+    </button>
+  </div>
+
+  <!-- TEXTO DE INTRODUCCIÓN -->
+  <div class="home-intro">
+    <p class="home-intro-text">
+      Todo lo que necesitas para una vida sin gluten, en un solo lugar.<br><br>
+      Escanea etiquetas de productos, encuentra restaurantes confiables cerca de ti y resuelve tus dudas al instante con el asistente IA.<br><br>
+      Te muestra las tiendas sin gluten del sector y puedes explorar recomendaciones reales de otras personas de tu ciudad.<br><br>
+      Porque no estás solo: hay toda una comunidad lista para ayudarte.
+    </p>
+  </div>
+
+  <!-- FOOTER MARCA -->
+  <div class="home-footer">
+    <span class="home-footer-badge">EAT SAFE · CELIACO FRIENDLY</span>
+  </div>
+
+</div><!-- /page-home -->
+
+<div class="page" id="page-scanner">
+
+  <div class="page-title">Escáner de etiquetas</div>
+  <div class="page-sub">Foto o texto — la IA detecta gluten y tus alergias en segundos. Analiza ingredientes, nombres ocultos y contaminación cruzada.</div>
 
   <!-- FORMULARIO -->
   <div class="scanner-form-wrap">
@@ -185,14 +281,6 @@
     <div class="input-card">
       <label>INGREDIENTES DEL PRODUCTO</label>
       <textarea id="ingredientsInput" placeholder="Ej: Harina de trigo, agua, sal, levadura, leche descremada, huevo..."></textarea>
-    </div>
-
-    <div class="chips">
-      <span class="chip" onclick="setEx('pan')">🍞 Pan de molde</span>
-      <span class="chip" onclick="setEx('jamon')">🥩 Jamón</span>
-      <span class="chip" onclick="setEx('avena')">🌾 Avena</span>
-      <span class="chip" onclick="setEx('salsa')">🍶 Salsa soya</span>
-      <span class="chip" onclick="setEx('galleta')">🍪 Galleta</span>
     </div>
 
     <button class="btn-primary" id="btnScan" onclick="scan()">
@@ -228,7 +316,7 @@
     <div class="ai-chat-header">
       <svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
       <div>
-        <h4>Asistente CeliGO</h4>
+        <h4>Asistente CeliGOT</h4>
         <p>Especializado en alergias y celiaquía</p>
       </div>
     </div>
@@ -240,10 +328,19 @@
       <button class="btn-send" id="btnSend" onclick="sendChat()">Enviar</button>
     </div>
   </div>
+
+  <!-- Banner publicitario asistente -->
+  <div class="asistente-banner-wrap">
+    <img src="img/banner-asistente.png" alt="Banner" class="asistente-banner-img">
+  </div>
+
+  <!-- Clínicas de alergias alimentarias — renderizado por JS según ubicación -->
+  <div class="asistente-clinicas-title" id="clinicasTitle">🏥 Clínicas de alergias en la región</div>
+  <div class="asistente-clinicas-grid" id="clinicasGrid"></div>
 </div>
 
 <!-- ══ RESTAURANTES ══ -->
-<div class="page active" id="page-restaurantes">
+<div class="page" id="page-restaurantes">
 
   <!-- HERO COMER -->
   <div class="rest-hero">
@@ -252,7 +349,7 @@
       <div class="rest-hero-overlay"></div>
     </div>
 
-    <div class="rest-hero-logo">
+    <div class="rest-hero-logo" onclick="goToHome()" style="cursor:pointer" title="Volver al inicio">
       <img src="img/ce-logo.png" alt="ce">
     </div>
 
@@ -314,7 +411,7 @@
       <div class="rest-hero-overlay"></div>
     </div>
 
-    <div class="rest-hero-logo">
+    <div class="rest-hero-logo" onclick="goToHome()" style="cursor:pointer" title="Volver al inicio">
       <img src="img/ce-logo.png" alt="ce">
     </div>
 
@@ -410,6 +507,81 @@
     <!-- Resumen del perfil guardado en onboarding -->
     <div id="profileSummaryCard"></div>
 
+    <!-- Instalar App -->
+    <div class="profile-card install-app-card" id="installAppCard">
+      <div class="install-app-header">
+        <div class="install-app-icon">
+          <img src="img/icon-192.png" alt="Celigot" style="width:40px;height:40px;border-radius:10px;">
+        </div>
+        <div>
+          <h3 style="margin-bottom:2px;">Instalar la app</h3>
+          <p style="margin-bottom:0;">Accedé rápido desde tu pantalla de inicio</p>
+        </div>
+      </div>
+
+      <!-- iOS -->
+      <div class="install-steps" id="installStepsIOS" style="display:none;">
+        <div class="install-step">
+          <span class="install-step-num">1</span>
+          <span>Abrí esta página en <strong>Safari</strong></span>
+        </div>
+        <div class="install-step">
+          <span class="install-step-num">2</span>
+          <span>Tocá el botón <strong>Compartir</strong> <svg style="vertical-align:middle;width:16px;height:16px;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M8.59 16.59L13.17 12 8.59 7.41 10 6l6 6-6 6-1.41-1.41z"/><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/></svg> de Safari</span>
+        </div>
+        <div class="install-step">
+          <span class="install-step-num">3</span>
+          <span>Seleccioná <strong>"Agregar a inicio"</strong></span>
+        </div>
+        <div class="install-step">
+          <span class="install-step-num">4</span>
+          <span>Tocá <strong>"Agregar"</strong> y listo 🎉</span>
+        </div>
+      </div>
+
+      <!-- Android -->
+      <div class="install-steps" id="installStepsAndroid" style="display:none;">
+        <div class="install-step">
+          <span class="install-step-num">1</span>
+          <span>Abrí esta página en <strong>Chrome</strong></span>
+        </div>
+        <div class="install-step">
+          <span class="install-step-num">2</span>
+          <span>Tocá el menú <strong>⋮</strong> (tres puntos)</span>
+        </div>
+        <div class="install-step">
+          <span class="install-step-num">3</span>
+          <span>Seleccioná <strong>"Instalar aplicación"</strong> o <strong>"Agregar a inicio"</strong></span>
+        </div>
+        <div class="install-step">
+          <span class="install-step-num">4</span>
+          <span>Tocá <strong>"Instalar"</strong> y listo 🎉</span>
+        </div>
+      </div>
+
+      <!-- Genérico (si no detecta) -->
+      <div class="install-steps" id="installStepsGeneric" style="display:none;">
+        <div class="install-step">
+          <span class="install-step-num">1</span>
+          <span>Abrí esta página en tu navegador</span>
+        </div>
+        <div class="install-step">
+          <span class="install-step-num">2</span>
+          <span>Buscá la opción <strong>"Agregar a pantalla de inicio"</strong> o <strong>"Instalar"</strong></span>
+        </div>
+        <div class="install-step">
+          <span class="install-step-num">3</span>
+          <span>Confirmá y ¡listo! 🎉</span>
+        </div>
+      </div>
+
+      <!-- Ya instalada -->
+      <div id="installAlreadyInstalled" style="display:none;text-align:center;padding:8px 0 4px;">
+        <span style="font-size:28px;">✅</span>
+        <p style="margin:6px 0 0;font-weight:600;color:var(--primary);">¡La app ya está instalada!</p>
+      </div>
+    </div>
+
     <div class="profile-card">
       <h3>Selecciona tus restricciones</h3>
       <p>Toca las que te aplican. Puedes seleccionar todas las que necesites.</p>
@@ -503,7 +675,7 @@
 
 <!-- BOTTOM NAV -->
 <nav class="bottom-nav">
-  <button class="nav-btn active" onclick="switchTab('restaurantes',this,true)">
+  <button class="nav-btn" onclick="switchTab('restaurantes',this,true)">
     <svg viewBox="0 0 24 24"><path d="M18 8h1a4 4 0 010 8h-1M2 8h16v9a4 4 0 01-4 4H6a4 4 0 01-4-4V8zM6 1v3M10 1v3M14 1v3"/></svg>
     <span>COMER</span>
   </button>
@@ -616,6 +788,8 @@
 <script src="js/store-detail.js"></script>
 <script src="js/parallax.js"></script>
 <script src="js/descubre.js"></script>
+<!-- ═══ GOOGLE MAPS / PLACES API ═══ -->
+<script async src="https://maps.googleapis.com/maps/api/js?key=__GOOGLE_MAPS_KEY__&libraries=places&callback=initGooglePlaces"></script>
 
 <!-- ═══ PANEL DE PERFIL (drawer lateral izquierdo) ═══ -->
 <div id="profilePanel">
@@ -753,7 +927,7 @@ function showInstallBanner() {
     <div style="display:flex;align-items:center;gap:12px;flex:1;">
       <img src="img/icon-192.png" style="width:36px;height:36px;border-radius:8px;">
       <div>
-        <div style="font-weight:700;font-size:13px;">Instalar CeliGO</div>
+        <div style="font-weight:700;font-size:13px;">Instalar CeliGOT</div>
         <div style="font-size:11px;color:rgba(255,255,255,0.6);">Acceso rápido desde tu pantalla de inicio</div>
       </div>
     </div>

@@ -1,0 +1,14 @@
+# Dependencias
+node_modules/
+
+# Variables de entorno locales
+.env
+.env.local
+.env.*.local
+
+# Sistema operativo
+.DS_Store
+Thumbs.db
+
+# Archivos temporales de Claude
+.claude/worktrees/

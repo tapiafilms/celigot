@@ -69,8 +69,8 @@ function showOnboarding() {
 
       <!-- PASO 1: Bienvenida -->
       <div class="ob-step active" id="ob-step-1">
-        <div class="ob-logo"><img src="img/logo-full.png" alt="CeliGO"></div>
-        <h1 class="ob-title">BIENVENIDOS A CELIGO</h1>
+        <div class="ob-logo"><img src="img/logo-full.png" alt="CeliGOT"></div>
+        <h1 class="ob-title">BIENVENIDOS A CELIGOT</h1>
         <p class="ob-desc">Tu guía alimentaria personalizada en Viña del Mar. Cuéntanos sobre ti para darte una mejor experiencia.</p>
         <div class="ob-field">
           <input type="text" id="ob-nombre" placeholder="Tu nombre...">
