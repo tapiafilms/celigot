@@ -96,6 +96,7 @@ body > .topbar { display: none; }
   align-items:center;
   justify-content:center;
   padding:22px 20px 10px;
+  padding-top: calc(22px + env(safe-area-inset-top) + 40px);
   min-height:64px;
 }
 
@@ -1530,7 +1531,7 @@ body > .topbar { display: none; }
 /* ══ AVATAR FIJO (esquina sup. izquierda) ══ */
 .profile-avatar-fixed {
   position: fixed;
-  top: 14px;
+  top: calc(14px + env(safe-area-inset-top) + 40px);
   left: 14px;
   z-index: 300;
   width: 42px;
@@ -1570,7 +1571,7 @@ body > .topbar { display: none; }
 /* Botón volver en página de perfil */
 .perfil-back-btn {
   position: absolute;
-  top: 14px;
+  top: calc(14px + env(safe-area-inset-top) + 40px);
   left: 14px;
   z-index: 10;
   width: 36px;
